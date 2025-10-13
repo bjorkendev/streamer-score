@@ -33,11 +33,14 @@ export function CSVUpload({ onStreamsUploaded }: CSVUploadProps) {
 
   return (
     <div className="bg-slate-800 rounded-lg p-6 shadow-lg">
-      <h3 className="text-xl font-bold mb-4 text-violet-400">Upload CSV</h3>
+      <h3 className="text-xl font-bold mb-4 text-violet-400">Upload CSV (60-Day Period)</h3>
       <div className="space-y-4">
         <p className="text-sm text-gray-300">
           Upload a CSV file with columns: Date, Hours, AvgViewers, Messages,
           UniqueChatters, Followers
+        </p>
+        <p className="text-xs text-gray-400">
+          Each row should represent aggregated data for a 60-day period ending on the date specified.
         </p>
         <input
           ref={fileInputRef}

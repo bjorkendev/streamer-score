@@ -37,6 +37,16 @@ export function StreamDataTable({
     setEditData(null);
   };
 
+  const getDateRange = (endDate: string) => {
+    const end = new Date(endDate);
+    const start = new Date(end);
+    start.setDate(end.getDate() - 60);
+    return {
+      start: start.toISOString().split('T')[0],
+      end: endDate
+    };
+  };
+
   if (streams.length === 0) {
     return (
       <div className="bg-slate-800 rounded-lg p-6 shadow-lg">
@@ -51,13 +61,14 @@ export function StreamDataTable({
   return (
     <div className="bg-slate-800 rounded-lg p-6 shadow-lg overflow-x-auto">
       <h3 className="text-xl font-bold mb-4 text-violet-400">
-        Stream Data ({streams.length} streams)
+        Stream Data ({streams.length} period{streams.length !== 1 ? 's' : ''})
       </h3>
+      <p className="text-xs text-gray-400 mb-4">Each entry represents a 60-day period. Date shown is the end date of that period.</p>
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-violet-600/30">
             <th className="text-left py-3 px-2 text-gray-300 font-semibold">
-              Date
+              Period End Date
             </th>
             <th className="text-left py-3 px-2 text-gray-300 font-semibold">
               Hours
@@ -183,7 +194,12 @@ export function StreamDataTable({
                 </>
               ) : (
                 <>
-                  <td className="py-3 px-2 text-white">{stream.date}</td>
+                  <td className="py-3 px-2">
+                    <div className="text-white">{stream.date}</div>
+                    <div className="text-xs text-gray-400">
+                      ({getDateRange(stream.date).start} to {stream.date})
+                    </div>
+                  </td>
                   <td className="py-3 px-2 text-white">{stream.hours}</td>
                   <td className="py-3 px-2 text-white">{stream.avgViewers}</td>
                   <td className="py-3 px-2 text-white">{stream.messages}</td>
