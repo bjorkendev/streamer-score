@@ -259,12 +259,12 @@ export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
             />
           </div>
         </div>
-        <button
-          type="submit"
-          className="w-full bg-violet-600 hover:bg-violet-700 text-white font-semibold py-3 px-6 rounded-md transition-colors duration-200"
-        >
-          Add Stream
-        </button>
+            <button
+              type="submit"
+              className="w-full bg-violet-600 hover:bg-violet-700 text-white font-semibold py-3 px-6 rounded-md transition-colors duration-200"
+            >
+              Add Stream Data
+            </button>
       </form>
     </div>
   );
