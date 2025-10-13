@@ -26,13 +26,35 @@ export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
       // Remove any non-numeric characters except decimal point and minus sign
       const cleanValue = value.replace(/[^\d.-]/g, '');
       const parsed = parseFloat(cleanValue);
-      return isNaN(parsed) ? 0 : parsed;
+      const result = isNaN(parsed) ? 0 : parsed;
+      
+      // Debug logging for parsing differences
+      console.log('parseNumber:', { 
+        original: value, 
+        cleaned: cleanValue, 
+        parsed: parsed, 
+        result: result,
+        platform: navigator.userAgent.includes('Mobile') ? 'mobile' : 'desktop'
+      });
+      
+      return result;
     };
 
     const parseInteger = (value: string): number => {
       const cleanValue = value.replace(/[^\d-]/g, '');
       const parsed = parseInt(cleanValue, 10);
-      return isNaN(parsed) ? 0 : parsed;
+      const result = isNaN(parsed) ? 0 : parsed;
+      
+      // Debug logging for parsing differences
+      console.log('parseInteger:', { 
+        original: value, 
+        cleaned: cleanValue, 
+        parsed: parsed, 
+        result: result,
+        platform: navigator.userAgent.includes('Mobile') ? 'mobile' : 'desktop'
+      });
+      
+      return result;
     };
 
     const stream: Omit<StreamData, 'id'> = {

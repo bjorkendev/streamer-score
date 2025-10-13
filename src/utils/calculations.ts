@@ -10,13 +10,6 @@ export function calculateLegitimacyScore(
   streams: StreamData[],
   settings: Settings
 ): CalculationResult {
-  // Debug logging for mobile issues
-  console.log('calculateLegitimacyScore called with:', {
-    streamsCount: streams.length,
-    settings,
-    streamsSample: streams.slice(0, 2) // First 2 streams for debugging
-  });
-
   const today = new Date();
   const windowStart = new Date(today);
   windowStart.setDate(today.getDate() - settings.windowStartDays);
@@ -29,22 +22,14 @@ export function calculateLegitimacyScore(
     return streamDate >= windowStart && streamDate <= windowEnd;
   });
 
-  console.log('Filtered streams:', {
-    originalCount: streams.length,
-    filteredCount: filteredStreams.length,
-    filteredStreams: filteredStreams.slice(0, 2)
-  });
-
   // Calculate intermediate metrics
   const intermediateMetrics = calculateIntermediateMetrics(filteredStreams);
-  console.log('Intermediate metrics:', intermediateMetrics);
   
   // Calculate component scores
   const componentScores = calculateComponentScores(
     intermediateMetrics,
     settings
   );
-  console.log('Component scores:', componentScores);
   
   // Calculate final score
   const finalScore = calculateFinalScore(
@@ -52,7 +37,31 @@ export function calculateLegitimacyScore(
     intermediateMetrics.viewerHours,
     settings
   );
-  console.log('Final score:', finalScore);
+
+  // Targeted debugging for score discrepancy
+  const debugInfo = {
+    platform: navigator.userAgent.includes('Mobile') ? 'mobile' : 'desktop',
+    streamsCount: streams.length,
+    filteredCount: filteredStreams.length,
+    totalStreams: intermediateMetrics.totalStreams,
+    totalHours: intermediateMetrics.totalHours,
+    weightedAvgViewers: intermediateMetrics.weightedAvgViewers,
+    viewerHours: intermediateMetrics.viewerHours,
+    streamsScore: componentScores.streamsScore,
+    hoursScore: componentScores.hoursScore,
+    viewersScore: componentScores.viewersScore,
+    finalScore: finalScore,
+    streamsData: streams.map(s => ({
+      numberOfStreams: s.numberOfStreams,
+      hours: s.hours,
+      avgViewers: s.avgViewers,
+      messages: s.messages,
+      uniqueChatters: s.uniqueChatters,
+      followers: s.followers
+    }))
+  };
+  
+  console.log('SCORE DEBUG:', debugInfo);
 
   return {
     windowStart: windowStart.toISOString().split('T')[0],
