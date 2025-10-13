@@ -74,6 +74,9 @@ export function StreamDataTable({
               Period End Date
             </th>
             <th className="text-left py-3 px-2 text-gray-300 font-semibold">
+              Streams
+            </th>
+            <th className="text-left py-3 px-2 text-gray-300 font-semibold">
               Hours
             </th>
             <th className="text-left py-3 px-2 text-gray-300 font-semibold">
@@ -118,6 +121,19 @@ export function StreamDataTable({
                       value={editData.date}
                       onChange={(e) =>
                         setEditData({ ...editData, date: e.target.value })
+                      }
+                      className="w-full px-2 py-1 bg-slate-900 border border-violet-600/30 rounded text-white text-sm"
+                    />
+                  </td>
+                  <td className="py-3 px-2">
+                    <input
+                      type="number"
+                      value={editData.numberOfStreams}
+                      onChange={(e) =>
+                        setEditData({
+                          ...editData,
+                          numberOfStreams: parseInt(e.target.value, 10),
+                        })
                       }
                       className="w-full px-2 py-1 bg-slate-900 border border-violet-600/30 rounded text-white text-sm"
                     />
@@ -215,6 +231,7 @@ export function StreamDataTable({
                       ({getDateRange(stream.date).start} to {stream.date})
                     </div>
                   </td>
+                  <td className="py-3 px-2 text-white">{stream.numberOfStreams}</td>
                   <td className="py-3 px-2 text-white">{stream.hours}</td>
                   <td className="py-3 px-2 text-white">{stream.avgViewers}</td>
                   <td className="py-3 px-2 text-white">{stream.messages}</td>

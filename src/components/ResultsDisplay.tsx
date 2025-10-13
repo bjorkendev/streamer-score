@@ -122,6 +122,11 @@ export function ResultsDisplay({ result }: ResultsDisplayProps) {
             tooltip="Date range being analyzed for this legitimacy score calculation"
           />
           <MetricDisplay
+            label="Total Streams"
+            value={intermediateMetrics.totalStreams}
+            tooltip="Total number of individual streaming sessions across all periods"
+          />
+          <MetricDisplay
             label="Total Hours"
             value={intermediateMetrics.totalHours.toFixed(1)}
             tooltip="Sum of all streaming hours across all sessions"
@@ -164,9 +169,9 @@ export function ResultsDisplay({ result }: ResultsDisplayProps) {
         <h3 className="text-xl font-bold mb-4 text-violet-400">Component Scores</h3>
         <div className="space-y-2">
           <ScoreBar 
-            score={componentScores.daysScore} 
-            label="Days Score"
-            tooltip="Measures streaming frequency. Based on how many unique days you streamed within the analysis period. More consistent streaming = higher score."
+            score={componentScores.streamsScore} 
+            label="Streams Score"
+            tooltip="Measures streaming consistency. Based on the number of individual streaming sessions. 60 streams in 60 days (1 per day) = perfect consistency."
           />
           <ScoreBar 
             score={componentScores.hoursScore} 

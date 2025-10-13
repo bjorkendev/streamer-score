@@ -4,7 +4,7 @@ export interface Settings {
   windowEndDays: number; // Days to subtract from today for Window_End (usually 0)
   
   // Performance caps
-  daysCap: number;
+  streamsCap: number;
   hoursCap: number;
   viewersCap: number;
   
@@ -15,7 +15,7 @@ export interface Settings {
   minViewerHours: number;
   
   // Weights (must sum to 1.0)
-  daysWeight: number;
+  streamsWeight: number;
   hoursWeight: number;
   viewersWeight: number;
   mpvmWeight: number;
@@ -28,6 +28,7 @@ export interface StreamData {
   id: string;
   name: string; // Streamer name or identifier
   date: string; // ISO date string YYYY-MM-DD
+  numberOfStreams: number; // Total number of individual streams in the 60-day period
   hours: number;
   avgViewers: number;
   messages: number;
@@ -36,7 +37,7 @@ export interface StreamData {
 }
 
 export interface IntermediateMetrics {
-  daysStreamed: number;
+  totalStreams: number;
   totalHours: number;
   weightedAvgViewers: number;
   viewerHours: number;
@@ -47,7 +48,7 @@ export interface IntermediateMetrics {
 }
 
 export interface ComponentScores {
-  daysScore: number;
+  streamsScore: number;
   hoursScore: number;
   viewersScore: number;
   mpvmScore: number;
@@ -67,14 +68,14 @@ export interface CalculationResult {
 export const defaultSettings: Settings = {
   windowStartDays: 60,
   windowEndDays: 0,
-  daysCap: 20,
+  streamsCap: 60,
   hoursCap: 60,
   viewersCap: 1000,
   mpvmTarget: 0.05,
   ucp100Target: 30,
   f1kVHTarget: 15,
   minViewerHours: 50,
-  daysWeight: 0.10,
+  streamsWeight: 0.10,
   hoursWeight: 0.20,
   viewersWeight: 0.25,
   mpvmWeight: 0.15,

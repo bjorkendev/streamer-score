@@ -52,7 +52,7 @@ function calculateIntermediateMetrics(
 ): IntermediateMetrics {
   if (streams.length === 0) {
     return {
-      daysStreamed: 0,
+      totalStreams: 0,
       totalHours: 0,
       weightedAvgViewers: 0,
       viewerHours: 0,
@@ -63,9 +63,8 @@ function calculateIntermediateMetrics(
     };
   }
 
-  // Days_Streamed: Count unique dates
-  const uniqueDates = new Set(streams.map((s) => s.date));
-  const daysStreamed = uniqueDates.size;
+  // Total_Streams: Sum of all numberOfStreams
+  const totalStreams = streams.reduce((sum, s) => sum + s.numberOfStreams, 0);
 
   // Total_Hours: Sum of all hours
   const totalHours = streams.reduce((sum, s) => sum + s.hours, 0);
@@ -117,7 +116,7 @@ function calculateIntermediateMetrics(
     avgFollowers > 0 ? 1 / (1 + coefficientOfVariation) : 0;
 
   return {
-    daysStreamed,
+    totalStreams,
     totalHours,
     weightedAvgViewers,
     viewerHours,
@@ -132,10 +131,10 @@ function calculateComponentScores(
   metrics: IntermediateMetrics,
   settings: Settings
 ): ComponentScores {
-  // Days_Score: MIN(100, 100*SQRT(days / daysCap))
-  const daysScore = Math.min(
+  // Streams_Score: MIN(100, 100*SQRT(streams / streamsCap))
+  const streamsScore = Math.min(
     100,
-    100 * Math.sqrt(metrics.daysStreamed / settings.daysCap)
+    100 * Math.sqrt(metrics.totalStreams / settings.streamsCap)
   );
 
   // Hours_Score: MIN(100, 100*SQRT(hours / hoursCap))
@@ -173,7 +172,7 @@ function calculateComponentScores(
   const consistencyScore = 100 * metrics.followerSpreadConsistency;
 
   return {
-    daysScore,
+    streamsScore,
     hoursScore,
     viewersScore,
     mpvmScore,
@@ -190,7 +189,7 @@ function calculateFinalScore(
 ): number {
   // Weighted sum of component scores
   const weightedSum =
-    settings.daysWeight * scores.daysScore +
+    settings.streamsWeight * scores.streamsScore +
     settings.hoursWeight * scores.hoursScore +
     settings.viewersWeight * scores.viewersScore +
     settings.mpvmWeight * scores.mpvmScore +

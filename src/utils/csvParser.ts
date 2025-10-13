@@ -13,6 +13,7 @@ export function parseCSV(csvContent: string): StreamData[] {
   const requiredColumns = [
     'name',
     'date',
+    'numberofstreams',
     'hours',
     'avgviewers',
     'messages',
@@ -49,6 +50,9 @@ export function parseCSV(csvContent: string): StreamData[] {
     const dateIdx = headers.findIndex(
       (h) => h === 'date'
     );
+    const numberOfStreamsIdx = headers.findIndex(
+      (h) => h === 'numberofstreams' || h === 'number of streams' || h === 'streams'
+    );
     const hoursIdx = headers.findIndex(
       (h) => h === 'hours'
     );
@@ -70,6 +74,7 @@ export function parseCSV(csvContent: string): StreamData[] {
         id: crypto.randomUUID(),
         name: values[nameIdx]?.trim() || 'Unknown',
         date: values[dateIdx],
+        numberOfStreams: parseInt(values[numberOfStreamsIdx], 10),
         hours: parseFloat(values[hoursIdx]),
         avgViewers: parseFloat(values[avgViewersIdx]),
         messages: parseInt(values[messagesIdx], 10),
@@ -80,6 +85,7 @@ export function parseCSV(csvContent: string): StreamData[] {
       // Validate data
       if (
         !stream.name ||
+        isNaN(stream.numberOfStreams) ||
         isNaN(stream.hours) ||
         isNaN(stream.avgViewers) ||
         isNaN(stream.messages) ||
@@ -103,6 +109,7 @@ export function exportToCSV(streams: StreamData[]): string {
   const headers = [
     'Name',
     'Date',
+    'NumberOfStreams',
     'Hours',
     'AvgViewers',
     'Messages',
@@ -114,6 +121,7 @@ export function exportToCSV(streams: StreamData[]): string {
     [
       stream.name,
       stream.date,
+      stream.numberOfStreams,
       stream.hours,
       stream.avgViewers,
       stream.messages,

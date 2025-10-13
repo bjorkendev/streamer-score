@@ -81,14 +81,14 @@ export function Settings({ settings, onSettingsChange }: SettingsProps) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <LabelWithTooltip 
-                label="Days Cap" 
-                tooltip="Maximum number of streaming days considered 'excellent'. Streaming more than this gives diminishing returns. Default: 20 days."
+                label="Streams Cap" 
+                tooltip="Maximum number of individual streams considered 'excellent'. 60 streams = 1 per day (perfect consistency). More than this gives diminishing returns. Default: 60"
               />
               <input
                 type="number"
-                value={settings.daysCap}
+                value={settings.streamsCap}
                 onChange={(e) =>
-                  handleChange('daysCap', parseFloat(e.target.value))
+                  handleChange('streamsCap', parseFloat(e.target.value))
                 }
                 className="w-full px-3 py-2 bg-slate-900 border border-violet-600/30 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-violet-600"
               />
@@ -194,15 +194,15 @@ export function Settings({ settings, onSettingsChange }: SettingsProps) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <LabelWithTooltip 
-                label="Days Weight" 
+                label="Streams Weight" 
                 tooltip="How much streaming frequency influences the final score. Higher = more emphasis on consistency. Default: 0.10 (10%)"
               />
               <input
                 type="number"
                 step="0.01"
-                value={settings.daysWeight}
+                value={settings.streamsWeight}
                 onChange={(e) =>
-                  handleChange('daysWeight', parseFloat(e.target.value))
+                  handleChange('streamsWeight', parseFloat(e.target.value))
                 }
                 className="w-full px-3 py-2 bg-slate-900 border border-violet-600/30 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-violet-600"
               />

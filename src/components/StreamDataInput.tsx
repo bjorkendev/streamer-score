@@ -10,6 +10,7 @@ export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
   const [formData, setFormData] = useState({
     name: '',
     date: new Date().toISOString().split('T')[0],
+    numberOfStreams: '',
     hours: '',
     avgViewers: '',
     messages: '',
@@ -23,6 +24,7 @@ export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
     const stream: Omit<StreamData, 'id'> = {
       name: formData.name.trim(),
       date: formData.date,
+      numberOfStreams: parseInt(formData.numberOfStreams, 10),
       hours: parseFloat(formData.hours),
       avgViewers: parseFloat(formData.avgViewers),
       messages: parseInt(formData.messages, 10),
@@ -33,6 +35,7 @@ export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
     // Validate
     if (
       !stream.name ||
+      isNaN(stream.numberOfStreams) ||
       isNaN(stream.hours) ||
       isNaN(stream.avgViewers) ||
       isNaN(stream.messages) ||
@@ -49,6 +52,7 @@ export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
     setFormData({
       name: '',
       date: new Date().toISOString().split('T')[0],
+      numberOfStreams: '',
       hours: '',
       avgViewers: '',
       messages: '',
@@ -112,6 +116,22 @@ export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
                 setFormData({ ...formData, date: e.target.value })
               }
               className="w-full px-3 py-2 bg-slate-900 border border-violet-600/30 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-violet-600"
+              required
+            />
+          </div>
+          <div>
+            <LabelWithTooltip 
+              label="Number of Streams" 
+              tooltip="Total number of individual streaming sessions during the 60-day period. Streaming 1x per day = 60 streams (excellent consistency)." 
+            />
+            <input
+              type="number"
+              value={formData.numberOfStreams}
+              onChange={(e) =>
+                setFormData({ ...formData, numberOfStreams: e.target.value })
+              }
+              className="w-full px-3 py-2 bg-slate-900 border border-violet-600/30 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-violet-600"
+              placeholder="e.g. 30"
               required
             />
           </div>
