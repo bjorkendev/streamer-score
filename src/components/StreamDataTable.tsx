@@ -1,10 +1,8 @@
 import { useState } from 'react';
-import type { StreamData, Settings } from '../types';
-import { calculateLegitimacyScore } from '../utils/calculations';
+import type { StreamData } from '../types';
 
 interface StreamDataTableProps {
   streams: StreamData[];
-  settings: Settings;
   onUpdateStream: (id: string, updatedStream: StreamData) => void;
   onDeleteStream: (id: string) => void;
   onViewScore: (stream: StreamData) => void;
@@ -12,7 +10,6 @@ interface StreamDataTableProps {
 
 export function StreamDataTable({
   streams,
-  settings,
   onUpdateStream,
   onDeleteStream,
   onViewScore,

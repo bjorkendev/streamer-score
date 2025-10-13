@@ -63,15 +63,12 @@ function App() {
   }, []);
 
 
-  // Recalculate when streams or settings change
+  // Don't calculate combined score by default - only show scores for individual periods
   useEffect(() => {
-    if (streams.length > 0 && !selectedStream) {
-      const calculatedResult = calculateLegitimacyScore(streams, settings);
-      setResult(calculatedResult);
-    } else if (streams.length === 0) {
+    if (streams.length === 0) {
       setResult(null);
     }
-  }, [streams, settings, selectedStream]);
+  }, [streams]);
 
   // Calculate score for selected stream when it changes
   useEffect(() => {
@@ -186,32 +183,48 @@ function App() {
           )}
 
           {/* Results Display */}
-          {selectedStream && (
-            <div className="bg-blue-900/30 border border-blue-500/50 rounded-lg p-4 mb-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-lg font-semibold text-blue-300">
-                    Viewing Score for Single Period: {selectedStream.name}
-                  </h3>
-                  <p className="text-sm text-blue-200">
-                    Period: {(() => {
-                      const end = new Date(selectedStream.date);
-                      const start = new Date(end);
-                      start.setDate(end.getDate() - 60);
-                      return `${start.toISOString().split('T')[0]} to ${selectedStream.date}`;
-                    })()}
-                  </p>
+          {selectedStream ? (
+            <>
+              <div className="bg-blue-900/30 border border-blue-500/50 rounded-lg p-4 mb-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold text-blue-300">
+                      Viewing Score for: {selectedStream.name}
+                    </h3>
+                    <p className="text-sm text-blue-200">
+                      Period: {(() => {
+                        const end = new Date(selectedStream.date);
+                        const start = new Date(end);
+                        start.setDate(end.getDate() - 60);
+                        return `${start.toISOString().split('T')[0]} to ${selectedStream.date}`;
+                      })()}
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleViewAllScores}
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors duration-200"
+                  >
+                    Clear Selection
+                  </button>
                 </div>
-                <button
-                  onClick={handleViewAllScores}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors duration-200"
-                >
-                  View All Periods
-                </button>
               </div>
+              <ResultsDisplay result={result} />
+            </>
+          ) : streams.length > 0 ? (
+            <div className="bg-slate-800 rounded-lg p-8 shadow-lg text-center">
+              <div className="text-violet-400 mb-4">
+                <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">Select a Period to View Score</h3>
+              <p className="text-gray-400">
+                Click the <span className="text-blue-400 font-semibold">"View Score"</span> button on any period below to calculate its legitimacy score.
+              </p>
             </div>
+          ) : (
+            <ResultsDisplay result={result} />
           )}
-          <ResultsDisplay result={result} />
 
           {/* Data Input Section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -222,7 +235,6 @@ function App() {
           {/* Stream Data Table */}
           <StreamDataTable
             streams={streams}
-            settings={settings}
             onUpdateStream={handleUpdateStream}
             onDeleteStream={handleDeleteStream}
             onViewScore={handleViewScore}
