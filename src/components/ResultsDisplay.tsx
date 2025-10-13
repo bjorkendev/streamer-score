@@ -117,9 +117,9 @@ export function ResultsDisplay({ result }: ResultsDisplayProps) {
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <MetricDisplay
-            label="Days Streamed"
-            value={intermediateMetrics.daysStreamed}
-            tooltip="Number of unique days you went live within the analysis period"
+            label="Analysis Period"
+            value={`${result.windowStart} to ${result.windowEnd}`}
+            tooltip="Date range being analyzed for this legitimacy score calculation"
           />
           <MetricDisplay
             label="Total Hours"
