@@ -121,7 +121,7 @@ export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
                     setFormData({ ...formData, name: e.target.value })
                   }
                   className="w-full px-3 py-2 bg-slate-900 border border-violet-600/30 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-violet-600"
-                  placeholder="AlexStreams"
+                  placeholder="e.g. AlexStreams"
                   required
                 />
           </div>
