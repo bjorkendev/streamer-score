@@ -132,7 +132,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900">
+    <div className="min-h-screen bg-slate-900 flex flex-col">
       {/* Header */}
       <header className="bg-slate-800 shadow-lg border-b border-violet-600/20">
         <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
@@ -151,7 +151,7 @@ function App() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <main className="flex-1 max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8 w-full">
         <div className="space-y-8">
           {/* Settings Panel (Collapsible) */}
           {showSettings && (
@@ -203,7 +203,7 @@ function App() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-slate-800 mt-16 border-t border-violet-600/20">
+      <footer className="bg-slate-800 border-t border-violet-600/20 mt-auto">
         <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
           <p className="text-center text-gray-400 text-sm">
             Streamer Legitimacy Score Calculator - Analyze streaming performance
