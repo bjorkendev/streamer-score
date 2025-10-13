@@ -114,16 +114,16 @@ export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
               label="Streamer Name" 
               tooltip="Name or identifier for this streamer (e.g., username, nickname, or any label to distinguish between different streamers)" 
             />
-            <input
-              type="text"
-              value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
-              className="w-full px-3 py-2 bg-slate-900 border border-violet-600/30 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-violet-600"
-              placeholder="e.g. JohnStreamer"
-              required
-            />
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
+                  className="w-full px-3 py-2 bg-slate-900 border border-violet-600/30 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-violet-600"
+                  placeholder="AlexStreams"
+                  required
+                />
           </div>
           <div>
             <LabelWithTooltip 
