@@ -26,10 +26,51 @@ function App() {
   const [result, setResult] = useState<CalculationResult | null>(null);
   const [showSettings, setShowSettings] = useState(false);
 
+  // Migrate old data that doesn't have numberOfStreams field
+  useEffect(() => {
+    const needsMigration = streams.some(stream => 
+      typeof (stream as any).numberOfStreams === 'undefined'
+    );
+    
+    if (needsMigration) {
+      console.log('Migrating old data to include numberOfStreams field');
+      const migratedStreams = streams.map(stream => ({
+        ...stream,
+        numberOfStreams: (stream as any).numberOfStreams || 1 // Default to 1 if missing
+      }));
+      setStreams(migratedStreams);
+    }
+  }, []);
+
+  // Migrate old settings that have daysCap/daysWeight instead of streamsCap/streamsWeight
+  useEffect(() => {
+    const needsSettingsMigration = 
+      typeof (settings as any).daysCap !== 'undefined' || 
+      typeof (settings as any).daysWeight !== 'undefined';
+    
+    if (needsSettingsMigration) {
+      console.log('Migrating old settings from daysCap/daysWeight to streamsCap/streamsWeight');
+      const migratedSettings = {
+        ...settings,
+        streamsCap: (settings as any).daysCap || 60,
+        streamsWeight: (settings as any).daysWeight || 0.10,
+        // Remove old fields
+        daysCap: undefined,
+        daysWeight: undefined,
+      };
+      delete (migratedSettings as any).daysCap;
+      delete (migratedSettings as any).daysWeight;
+      setSettings(migratedSettings);
+    }
+  }, []);
+
   // Recalculate when streams or settings change
   useEffect(() => {
     if (streams.length > 0) {
+      console.log('Streams data:', streams);
+      console.log('Settings:', settings);
       const calculatedResult = calculateLegitimacyScore(streams, settings);
+      console.log('Calculated result:', calculatedResult);
       setResult(calculatedResult);
     } else {
       setResult(null);

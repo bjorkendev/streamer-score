@@ -64,7 +64,10 @@ function calculateIntermediateMetrics(
   }
 
   // Total_Streams: Sum of all numberOfStreams
-  const totalStreams = streams.reduce((sum, s) => sum + s.numberOfStreams, 0);
+  const totalStreams = streams.reduce((sum, s) => {
+    const streams = s.numberOfStreams || 0;
+    return sum + (isNaN(streams) ? 0 : streams);
+  }, 0);
 
   // Total_Hours: Sum of all hours
   const totalHours = streams.reduce((sum, s) => sum + s.hours, 0);
@@ -131,11 +134,22 @@ function calculateComponentScores(
   metrics: IntermediateMetrics,
   settings: Settings
 ): ComponentScores {
+  console.log('calculateComponentScores - metrics:', metrics);
+  console.log('calculateComponentScores - settings:', settings);
+  
   // Streams_Score: MIN(100, 100*SQRT(streams / streamsCap))
+  const streamsRatio = settings.streamsCap > 0 ? metrics.totalStreams / settings.streamsCap : 0;
   const streamsScore = Math.min(
     100,
-    100 * Math.sqrt(metrics.totalStreams / settings.streamsCap)
+    100 * Math.sqrt(Math.max(0, streamsRatio))
   );
+  console.log('streamsScore calculation:', {
+    totalStreams: metrics.totalStreams,
+    streamsCap: settings.streamsCap,
+    ratio: streamsRatio,
+    sqrt: Math.sqrt(Math.max(0, streamsRatio)),
+    streamsScore
+  });
 
   // Hours_Score: MIN(100, 100*SQRT(hours / hoursCap))
   const hoursScore = Math.min(
