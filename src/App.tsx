@@ -50,19 +50,26 @@ function App() {
     
     if (needsSettingsMigration) {
       console.log('Migrating old settings from daysCap/daysWeight to streamsCap/streamsWeight');
+      console.log('Old settings:', settings);
       const migratedSettings = {
-        ...settings,
+        ...defaultSettings, // Start with clean defaults
+        ...settings, // Overlay existing settings
         streamsCap: (settings as any).daysCap || 60,
         streamsWeight: (settings as any).daysWeight || 0.10,
-        // Remove old fields
-        daysCap: undefined,
-        daysWeight: undefined,
       };
+      // Remove old fields
       delete (migratedSettings as any).daysCap;
       delete (migratedSettings as any).daysWeight;
+      console.log('New migrated settings:', migratedSettings);
       setSettings(migratedSettings);
     }
   }, []);
+
+  // Debug current settings on load
+  useEffect(() => {
+    console.log('Current settings loaded:', settings);
+    console.log('Platform:', navigator.userAgent.includes('Mobile') ? 'mobile' : 'desktop');
+  }, [settings]);
 
   // Recalculate when streams or settings change
   useEffect(() => {
@@ -124,10 +131,13 @@ function App() {
   const handleResetSettings = () => {
     if (
       window.confirm(
-        'Are you sure you want to reset all settings to defaults?'
+        'Are you sure you want to reset all settings to defaults? This will clear any custom settings and use the standard values.'
       )
     ) {
       setSettings(defaultSettings);
+      // Also clear from localStorage to ensure clean reset
+      localStorage.removeItem('sls_settings');
+      console.log('Settings reset to defaults:', defaultSettings);
     }
   };
 
