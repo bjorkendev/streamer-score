@@ -166,6 +166,16 @@ function calculateComponentScores(
     100 * Math.sqrt(Math.max(0, streamsRatio))
   );
 
+  // Debug streams score calculation
+  console.log('STREAMS SCORE DEBUG:', {
+    platform: navigator.userAgent.includes('Mobile') ? 'mobile' : 'desktop',
+    totalStreams: metrics.totalStreams,
+    streamsCap: settings.streamsCap,
+    ratio: streamsRatio,
+    sqrt: Math.sqrt(Math.max(0, streamsRatio)),
+    streamsScore: streamsScore
+  });
+
   // Hours_Score: MIN(100, 100*SQRT(hours / hoursCap))
   const hoursScore = Math.min(
     100,

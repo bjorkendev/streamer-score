@@ -110,6 +110,8 @@ export function ResultsDisplay({ result }: ResultsDisplayProps) {
         <div className="text-red-300 font-bold mb-2">DEBUG INFO ({debugInfo.platform})</div>
         <div className="text-red-200 space-y-1">
           <div>Total Streams: {result.intermediateMetrics.totalStreams}</div>
+          <div>Streams Cap: 60 (default)</div>
+          <div>Streams Ratio: {(result.intermediateMetrics.totalStreams / 60).toFixed(3)}</div>
           <div>Total Hours: {result.intermediateMetrics.totalHours}</div>
           <div>Avg Viewers: {result.intermediateMetrics.weightedAvgViewers.toFixed(1)}</div>
           <div>Streams Score: {result.componentScores.streamsScore.toFixed(1)}</div>
