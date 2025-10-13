@@ -32,14 +32,13 @@ function App() {
       typeof (stream as any).numberOfStreams === 'undefined'
     );
     
-    if (needsMigration) {
-      console.log('Migrating old data to include numberOfStreams field');
-      const migratedStreams = streams.map(stream => ({
-        ...stream,
-        numberOfStreams: (stream as any).numberOfStreams || 1 // Default to 1 if missing
-      }));
-      setStreams(migratedStreams);
-    }
+        if (needsMigration) {
+          const migratedStreams = streams.map(stream => ({
+            ...stream,
+            numberOfStreams: (stream as any).numberOfStreams || 1 // Default to 1 if missing
+          }));
+          setStreams(migratedStreams);
+        }
   }, []);
 
   // Migrate old settings that have daysCap/daysWeight instead of streamsCap/streamsWeight
@@ -49,8 +48,6 @@ function App() {
       typeof (settings as any).daysWeight !== 'undefined';
     
     if (needsSettingsMigration) {
-      console.log('Migrating old settings from daysCap/daysWeight to streamsCap/streamsWeight');
-      console.log('Old settings:', settings);
       const migratedSettings = {
         ...defaultSettings, // Start with clean defaults
         ...settings, // Overlay existing settings
@@ -60,16 +57,10 @@ function App() {
       // Remove old fields
       delete (migratedSettings as any).daysCap;
       delete (migratedSettings as any).daysWeight;
-      console.log('New migrated settings:', migratedSettings);
       setSettings(migratedSettings);
     }
   }, []);
 
-  // Debug current settings on load
-  useEffect(() => {
-    console.log('Current settings loaded:', settings);
-    console.log('Platform:', navigator.userAgent.includes('Mobile') ? 'mobile' : 'desktop');
-  }, [settings]);
 
   // Recalculate when streams or settings change
   useEffect(() => {
@@ -137,7 +128,6 @@ function App() {
       setSettings(defaultSettings);
       // Also clear from localStorage to ensure clean reset
       localStorage.removeItem('sls_settings');
-      console.log('Settings reset to defaults:', defaultSettings);
     }
   };
 

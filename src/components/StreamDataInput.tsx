@@ -28,14 +28,6 @@ export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
       const parsed = parseFloat(cleanValue);
       const result = isNaN(parsed) ? 0 : parsed;
       
-      // Debug logging for parsing differences
-      console.log('parseNumber:', { 
-        original: value, 
-        cleaned: cleanValue, 
-        parsed: parsed, 
-        result: result,
-        platform: navigator.userAgent.includes('Mobile') ? 'mobile' : 'desktop'
-      });
       
       return result;
     };
@@ -45,14 +37,6 @@ export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
       const parsed = parseInt(cleanValue, 10);
       const result = isNaN(parsed) ? 0 : parsed;
       
-      // Debug logging for parsing differences
-      console.log('parseInteger:', { 
-        original: value, 
-        cleaned: cleanValue, 
-        parsed: parsed, 
-        result: result,
-        platform: navigator.userAgent.includes('Mobile') ? 'mobile' : 'desktop'
-      });
       
       return result;
     };

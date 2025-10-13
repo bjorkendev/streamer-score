@@ -95,32 +95,9 @@ export function ResultsDisplay({ result }: ResultsDisplayProps) {
     </div>
   );
 
-  // Debug info for mobile troubleshooting
-  const debugInfo = {
-    platform: navigator.userAgent.includes('Mobile') ? 'mobile' : 'desktop',
-    streamsData: result.intermediateMetrics,
-    componentScores: result.componentScores,
-    finalScore: result.finalScore
-  };
 
   return (
     <div className="space-y-6">
-      {/* Debug Info for Mobile Troubleshooting */}
-      <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-4 text-xs">
-        <div className="text-red-300 font-bold mb-2">DEBUG INFO ({debugInfo.platform})</div>
-        <div className="text-red-200 space-y-1">
-          <div>Total Streams: {result.intermediateMetrics.totalStreams}</div>
-          <div>Streams Cap: 60 (default)</div>
-          <div>Streams Ratio: {(result.intermediateMetrics.totalStreams / 60).toFixed(3)}</div>
-          <div>Total Hours: {result.intermediateMetrics.totalHours}</div>
-          <div>Avg Viewers: {result.intermediateMetrics.weightedAvgViewers.toFixed(1)}</div>
-          <div>Streams Score: {result.componentScores.streamsScore.toFixed(1)}</div>
-          <div>Hours Score: {result.componentScores.hoursScore.toFixed(1)}</div>
-          <div>Viewers Score: {result.componentScores.viewersScore.toFixed(1)}</div>
-          <div className="font-bold">Final Score: {result.finalScore.toFixed(1)}</div>
-        </div>
-      </div>
-
       {/* Final Score - Hero Section */}
       <div className="bg-gradient-to-br from-violet-600 to-violet-800 rounded-lg p-8 shadow-xl text-center">
         <h2 className="text-2xl font-bold mb-2 text-white/80">

@@ -38,30 +38,6 @@ export function calculateLegitimacyScore(
     settings
   );
 
-  // Targeted debugging for score discrepancy
-  const debugInfo = {
-    platform: navigator.userAgent.includes('Mobile') ? 'mobile' : 'desktop',
-    streamsCount: streams.length,
-    filteredCount: filteredStreams.length,
-    totalStreams: intermediateMetrics.totalStreams,
-    totalHours: intermediateMetrics.totalHours,
-    weightedAvgViewers: intermediateMetrics.weightedAvgViewers,
-    viewerHours: intermediateMetrics.viewerHours,
-    streamsScore: componentScores.streamsScore,
-    hoursScore: componentScores.hoursScore,
-    viewersScore: componentScores.viewersScore,
-    finalScore: finalScore,
-    streamsData: streams.map(s => ({
-      numberOfStreams: s.numberOfStreams,
-      hours: s.hours,
-      avgViewers: s.avgViewers,
-      messages: s.messages,
-      uniqueChatters: s.uniqueChatters,
-      followers: s.followers
-    }))
-  };
-  
-  console.log('SCORE DEBUG:', debugInfo);
 
   return {
     windowStart: windowStart.toISOString().split('T')[0],
@@ -166,15 +142,6 @@ function calculateComponentScores(
     100 * Math.sqrt(Math.max(0, streamsRatio))
   );
 
-  // Debug streams score calculation
-  console.log('STREAMS SCORE DEBUG:', {
-    platform: navigator.userAgent.includes('Mobile') ? 'mobile' : 'desktop',
-    totalStreams: metrics.totalStreams,
-    streamsCap: settings.streamsCap,
-    ratio: streamsRatio,
-    sqrt: Math.sqrt(Math.max(0, streamsRatio)),
-    streamsScore: streamsScore
-  });
 
   // Hours_Score: MIN(100, 100*SQRT(hours / hoursCap))
   const hoursScore = Math.min(

@@ -39,19 +39,6 @@ export function Settings({ settings, onSettingsChange }: SettingsProps) {
     <div className="bg-slate-800 rounded-lg p-6 shadow-lg">
       <h2 className="text-2xl font-bold mb-6 text-violet-400">Settings</h2>
       
-      {/* Debug Settings Display */}
-      <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4 mb-6 text-xs">
-        <div className="text-blue-300 font-bold mb-2">CURRENT SETTINGS DEBUG</div>
-        <div className="text-blue-200 space-y-1">
-          <div>Streams Cap: {settings.streamsCap}</div>
-          <div>Hours Cap: {settings.hoursCap}</div>
-          <div>Viewers Cap: {settings.viewersCap}</div>
-          <div>Streams Weight: {settings.streamsWeight}</div>
-          <div>Hours Weight: {settings.hoursWeight}</div>
-          <div>Viewers Weight: {settings.viewersWeight}</div>
-        </div>
-      </div>
-      
       <div className="space-y-6">
         {/* Date Window */}
         <div>
