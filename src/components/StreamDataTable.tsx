@@ -68,6 +68,9 @@ export function StreamDataTable({
         <thead>
           <tr className="border-b border-violet-600/30">
             <th className="text-left py-3 px-2 text-gray-300 font-semibold">
+              Name
+            </th>
+            <th className="text-left py-3 px-2 text-gray-300 font-semibold">
               Period End Date
             </th>
             <th className="text-left py-3 px-2 text-gray-300 font-semibold">
@@ -98,6 +101,17 @@ export function StreamDataTable({
             >
               {editingId === stream.id && editData ? (
                 <>
+                  <td className="py-3 px-2">
+                    <input
+                      type="text"
+                      value={editData.name}
+                      onChange={(e) =>
+                        setEditData({ ...editData, name: e.target.value })
+                      }
+                      className="w-full px-2 py-1 bg-slate-900 border border-violet-600/30 rounded text-white text-sm"
+                      placeholder="Name"
+                    />
+                  </td>
                   <td className="py-3 px-2">
                     <input
                       type="date"
@@ -194,6 +208,7 @@ export function StreamDataTable({
                 </>
               ) : (
                 <>
+                  <td className="py-3 px-2 text-white font-medium">{stream.name}</td>
                   <td className="py-3 px-2">
                     <div className="text-white">{stream.date}</div>
                     <div className="text-xs text-gray-400">

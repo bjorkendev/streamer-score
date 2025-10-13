@@ -8,6 +8,7 @@ interface StreamDataInputProps {
 
 export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
   const [formData, setFormData] = useState({
+    name: '',
     date: new Date().toISOString().split('T')[0],
     hours: '',
     avgViewers: '',
@@ -20,6 +21,7 @@ export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
     e.preventDefault();
 
     const stream: Omit<StreamData, 'id'> = {
+      name: formData.name.trim(),
       date: formData.date,
       hours: parseFloat(formData.hours),
       avgViewers: parseFloat(formData.avgViewers),
@@ -30,13 +32,14 @@ export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
 
     // Validate
     if (
+      !stream.name ||
       isNaN(stream.hours) ||
       isNaN(stream.avgViewers) ||
       isNaN(stream.messages) ||
       isNaN(stream.uniqueChatters) ||
       isNaN(stream.followers)
     ) {
-      alert('Please fill in all fields with valid numbers');
+      alert('Please fill in all fields with valid data');
       return;
     }
 
@@ -44,6 +47,7 @@ export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
 
     // Reset form
     setFormData({
+      name: '',
       date: new Date().toISOString().split('T')[0],
       hours: '',
       avgViewers: '',
@@ -80,6 +84,22 @@ export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
       <p className="text-sm text-gray-400 mb-4">Each entry represents aggregated data for a 60-day period ending on the date you specify.</p>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <LabelWithTooltip 
+              label="Streamer Name" 
+              tooltip="Name or identifier for this streamer (e.g., username, nickname, or any label to distinguish between different streamers)" 
+            />
+            <input
+              type="text"
+              value={formData.name}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
+              className="w-full px-3 py-2 bg-slate-900 border border-violet-600/30 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-violet-600"
+              placeholder="e.g. JohnStreamer"
+              required
+            />
+          </div>
           <div>
             <LabelWithTooltip 
               label="End Date" 

@@ -26,6 +26,7 @@ export interface Settings {
 
 export interface StreamData {
   id: string;
+  name: string; // Streamer name or identifier
   date: string; // ISO date string YYYY-MM-DD
   hours: number;
   avgViewers: number;

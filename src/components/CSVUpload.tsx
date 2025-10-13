@@ -36,7 +36,7 @@ export function CSVUpload({ onStreamsUploaded }: CSVUploadProps) {
       <h3 className="text-xl font-bold mb-4 text-violet-400">Upload CSV (60-Day Period)</h3>
       <div className="space-y-4">
         <p className="text-sm text-gray-300">
-          Upload a CSV file with columns: Date, Hours, AvgViewers, Messages,
+          Upload a CSV file with columns: Name, Date, Hours, AvgViewers, Messages,
           UniqueChatters, Followers
         </p>
         <p className="text-xs text-gray-400">
