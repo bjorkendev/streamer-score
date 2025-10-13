@@ -67,10 +67,7 @@ function App() {
   // Recalculate when streams or settings change
   useEffect(() => {
     if (streams.length > 0) {
-      console.log('Streams data:', streams);
-      console.log('Settings:', settings);
       const calculatedResult = calculateLegitimacyScore(streams, settings);
-      console.log('Calculated result:', calculatedResult);
       setResult(calculatedResult);
     } else {
       setResult(null);

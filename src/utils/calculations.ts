@@ -134,22 +134,12 @@ function calculateComponentScores(
   metrics: IntermediateMetrics,
   settings: Settings
 ): ComponentScores {
-  console.log('calculateComponentScores - metrics:', metrics);
-  console.log('calculateComponentScores - settings:', settings);
-  
   // Streams_Score: MIN(100, 100*SQRT(streams / streamsCap))
   const streamsRatio = settings.streamsCap > 0 ? metrics.totalStreams / settings.streamsCap : 0;
   const streamsScore = Math.min(
     100,
     100 * Math.sqrt(Math.max(0, streamsRatio))
   );
-  console.log('streamsScore calculation:', {
-    totalStreams: metrics.totalStreams,
-    streamsCap: settings.streamsCap,
-    ratio: streamsRatio,
-    sqrt: Math.sqrt(Math.max(0, streamsRatio)),
-    streamsScore
-  });
 
   // Hours_Score: MIN(100, 100*SQRT(hours / hoursCap))
   const hoursScore = Math.min(
