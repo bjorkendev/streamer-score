@@ -1,16 +1,21 @@
 import { useState } from 'react';
-import type { StreamData } from '../types';
+import type { StreamData, Settings } from '../types';
+import { calculateLegitimacyScore } from '../utils/calculations';
 
 interface StreamDataTableProps {
   streams: StreamData[];
+  settings: Settings;
   onUpdateStream: (id: string, updatedStream: StreamData) => void;
   onDeleteStream: (id: string) => void;
+  onViewScore: (stream: StreamData) => void;
 }
 
 export function StreamDataTable({
   streams,
+  settings,
   onUpdateStream,
   onDeleteStream,
+  onViewScore,
 }: StreamDataTableProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editData, setEditData] = useState<StreamData | null>(null);
@@ -241,6 +246,13 @@ export function StreamDataTable({
                   <td className="py-3 px-2 text-white">{stream.followers}</td>
                   <td className="py-3 px-2">
                     <div className="flex gap-2">
+                      <button
+                        onClick={() => onViewScore(stream)}
+                        className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs"
+                        title="View score for this period only"
+                      >
+                        View Score
+                      </button>
                       <button
                         onClick={() => handleEdit(stream)}
                         className="px-3 py-1 bg-violet-600 hover:bg-violet-700 text-white rounded text-xs"

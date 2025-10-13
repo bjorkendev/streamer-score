@@ -25,6 +25,7 @@ function App() {
   );
   const [result, setResult] = useState<CalculationResult | null>(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [selectedStream, setSelectedStream] = useState<StreamData | null>(null);
 
   // Migrate old data that doesn't have numberOfStreams field
   useEffect(() => {
@@ -64,13 +65,21 @@ function App() {
 
   // Recalculate when streams or settings change
   useEffect(() => {
-    if (streams.length > 0) {
+    if (streams.length > 0 && !selectedStream) {
       const calculatedResult = calculateLegitimacyScore(streams, settings);
       setResult(calculatedResult);
-    } else {
+    } else if (streams.length === 0) {
       setResult(null);
     }
-  }, [streams, settings]);
+  }, [streams, settings, selectedStream]);
+
+  // Calculate score for selected stream when it changes
+  useEffect(() => {
+    if (selectedStream) {
+      const calculatedResult = calculateLegitimacyScore([selectedStream], settings);
+      setResult(calculatedResult);
+    }
+  }, [selectedStream, settings]);
 
   const handleAddStream = (streamData: Omit<StreamData, 'id'>) => {
     const newStream: StreamData = {
@@ -131,6 +140,16 @@ function App() {
     }
   };
 
+  const handleViewScore = (stream: StreamData) => {
+    setSelectedStream(stream);
+    // Scroll to results
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleViewAllScores = () => {
+    setSelectedStream(null);
+  };
+
   return (
     <div className="min-h-screen bg-slate-900 flex flex-col">
       {/* Header */}
@@ -167,6 +186,31 @@ function App() {
           )}
 
           {/* Results Display */}
+          {selectedStream && (
+            <div className="bg-blue-900/30 border border-blue-500/50 rounded-lg p-4 mb-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-blue-300">
+                    Viewing Score for Single Period: {selectedStream.name}
+                  </h3>
+                  <p className="text-sm text-blue-200">
+                    Period: {(() => {
+                      const end = new Date(selectedStream.date);
+                      const start = new Date(end);
+                      start.setDate(end.getDate() - 60);
+                      return `${start.toISOString().split('T')[0]} to ${selectedStream.date}`;
+                    })()}
+                  </p>
+                </div>
+                <button
+                  onClick={handleViewAllScores}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors duration-200"
+                >
+                  View All Periods
+                </button>
+              </div>
+            </div>
+          )}
           <ResultsDisplay result={result} />
 
           {/* Data Input Section */}
@@ -178,8 +222,10 @@ function App() {
           {/* Stream Data Table */}
           <StreamDataTable
             streams={streams}
+            settings={settings}
             onUpdateStream={handleUpdateStream}
             onDeleteStream={handleDeleteStream}
+            onViewScore={handleViewScore}
           />
 
           {/* Action Buttons */}
