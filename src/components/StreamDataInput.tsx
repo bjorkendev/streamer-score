@@ -21,28 +21,43 @@ export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Mobile-friendly number parsing - handle commas, spaces, and other mobile input quirks
+    const parseNumber = (value: string): number => {
+      // Remove any non-numeric characters except decimal point and minus sign
+      const cleanValue = value.replace(/[^\d.-]/g, '');
+      const parsed = parseFloat(cleanValue);
+      return isNaN(parsed) ? 0 : parsed;
+    };
+
+    const parseInteger = (value: string): number => {
+      const cleanValue = value.replace(/[^\d-]/g, '');
+      const parsed = parseInt(cleanValue, 10);
+      return isNaN(parsed) ? 0 : parsed;
+    };
+
     const stream: Omit<StreamData, 'id'> = {
       name: formData.name.trim(),
       date: formData.date,
-      numberOfStreams: parseInt(formData.numberOfStreams, 10),
-      hours: parseFloat(formData.hours),
-      avgViewers: parseFloat(formData.avgViewers),
-      messages: parseInt(formData.messages, 10),
-      uniqueChatters: parseInt(formData.uniqueChatters, 10),
-      followers: parseInt(formData.followers, 10),
+      numberOfStreams: parseInteger(formData.numberOfStreams),
+      hours: parseNumber(formData.hours),
+      avgViewers: parseNumber(formData.avgViewers),
+      messages: parseInteger(formData.messages),
+      uniqueChatters: parseInteger(formData.uniqueChatters),
+      followers: parseInteger(formData.followers),
     };
 
-    // Validate
-    if (
-      !stream.name ||
-      isNaN(stream.numberOfStreams) ||
-      isNaN(stream.hours) ||
-      isNaN(stream.avgViewers) ||
-      isNaN(stream.messages) ||
-      isNaN(stream.uniqueChatters) ||
-      isNaN(stream.followers)
-    ) {
-      alert('Please fill in all fields with valid data');
+    // Enhanced validation with better error messages
+    const errors: string[] = [];
+    if (!stream.name) errors.push('Streamer name is required');
+    if (stream.numberOfStreams <= 0) errors.push('Number of streams must be greater than 0');
+    if (stream.hours <= 0) errors.push('Hours must be greater than 0');
+    if (stream.avgViewers <= 0) errors.push('Average viewers must be greater than 0');
+    if (stream.messages <= 0) errors.push('Messages must be greater than 0');
+    if (stream.uniqueChatters <= 0) errors.push('Unique chatters must be greater than 0');
+    if (stream.followers < 0) errors.push('Followers cannot be negative');
+
+    if (errors.length > 0) {
+      alert('Please fix the following issues:\n' + errors.join('\n'));
       return;
     }
 
@@ -132,6 +147,10 @@ export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
               }
               className="w-full px-3 py-2 bg-slate-900 border border-violet-600/30 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-violet-600"
               placeholder="e.g. 30"
+              min="1"
+              step="1"
+              inputMode="numeric"
+              pattern="[0-9]*"
               required
             />
           </div>
@@ -149,6 +168,8 @@ export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
               }
               className="w-full px-3 py-2 bg-slate-900 border border-violet-600/30 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-violet-600"
               placeholder="e.g. 120"
+              min="0.1"
+              inputMode="decimal"
               required
             />
           </div>
@@ -166,6 +187,8 @@ export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
               }
               className="w-full px-3 py-2 bg-slate-900 border border-violet-600/30 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-violet-600"
               placeholder="e.g. 150"
+              min="0.1"
+              inputMode="decimal"
               required
             />
           </div>
@@ -182,6 +205,10 @@ export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
               }
               className="w-full px-3 py-2 bg-slate-900 border border-violet-600/30 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-violet-600"
               placeholder="e.g. 15000"
+              min="1"
+              step="1"
+              inputMode="numeric"
+              pattern="[0-9]*"
               required
             />
           </div>
@@ -198,6 +225,10 @@ export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
               }
               className="w-full px-3 py-2 bg-slate-900 border border-violet-600/30 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-violet-600"
               placeholder="e.g. 800"
+              min="1"
+              step="1"
+              inputMode="numeric"
+              pattern="[0-9]*"
               required
             />
           </div>
@@ -214,6 +245,10 @@ export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
               }
               className="w-full px-3 py-2 bg-slate-900 border border-violet-600/30 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-violet-600"
               placeholder="e.g. 250"
+              min="0"
+              step="1"
+              inputMode="numeric"
+              pattern="[0-9]*"
               required
             />
           </div>
