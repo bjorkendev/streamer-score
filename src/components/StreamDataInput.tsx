@@ -144,7 +144,6 @@ export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
                 value,
                 label,
               }))}
-              required
             />
           </div>
           <div>
