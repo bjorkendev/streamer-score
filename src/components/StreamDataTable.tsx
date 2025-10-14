@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import type { StreamData } from '../types';
+import type { StreamData, TimePeriod } from '../types';
+import { PERIOD_LABELS, PERIOD_DAYS } from '../types';
 
 interface StreamDataTableProps {
   streams: StreamData[];
@@ -39,10 +40,11 @@ export function StreamDataTable({
     setEditData(null);
   };
 
-  const getDateRange = (endDate: string) => {
+  const getDateRange = (endDate: string, period: TimePeriod) => {
     const end = new Date(endDate);
     const start = new Date(end);
-    start.setDate(end.getDate() - 60);
+    const periodDays = PERIOD_DAYS[period];
+    start.setDate(end.getDate() - periodDays);
     return {
       start: start.toISOString().split('T')[0],
       end: endDate
@@ -65,7 +67,7 @@ export function StreamDataTable({
       <h3 className="text-xl font-bold mb-4 text-violet-400">
         Stream Data ({streams.length} period{streams.length !== 1 ? 's' : ''})
       </h3>
-      <p className="text-xs text-gray-400 mb-4">Each entry represents a 60-day period. Date shown is the end date of that period.</p>
+      <p className="text-xs text-gray-400 mb-4">Each entry represents data for a specific time period.</p>
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-violet-600/30">
@@ -73,7 +75,10 @@ export function StreamDataTable({
               Name
             </th>
             <th className="text-left py-3 px-2 text-gray-300 font-semibold">
-              Period End Date
+              Time Period
+            </th>
+            <th className="text-left py-3 px-2 text-gray-300 font-semibold">
+              End Date
             </th>
             <th className="text-left py-3 px-2 text-gray-300 font-semibold">
               Streams
@@ -116,6 +121,21 @@ export function StreamDataTable({
                       className="w-full px-2 py-1 bg-slate-900 border border-violet-600/30 rounded text-white text-sm"
                       placeholder="Name"
                     />
+                  </td>
+                  <td className="py-3 px-2">
+                    <select
+                      value={editData.period}
+                      onChange={(e) =>
+                        setEditData({ ...editData, period: e.target.value as TimePeriod })
+                      }
+                      className="w-full px-2 py-1 bg-slate-900 border border-violet-600/30 rounded text-white text-sm"
+                    >
+                      {Object.entries(PERIOD_LABELS).map(([value, label]) => (
+                        <option key={value} value={value}>
+                          {label}
+                        </option>
+                      ))}
+                    </select>
                   </td>
                   <td className="py-3 px-2">
                     <input
@@ -228,11 +248,12 @@ export function StreamDataTable({
                 <>
                   <td className="py-3 px-2 text-white font-medium">{stream.name}</td>
                   <td className="py-3 px-2">
-                    <div className="text-white">{stream.date}</div>
+                    <div className="text-white font-medium">{PERIOD_LABELS[stream.period]}</div>
                     <div className="text-xs text-gray-400">
-                      ({getDateRange(stream.date).start} to {stream.date})
+                      {getDateRange(stream.date, stream.period).start} to {stream.date}
                     </div>
                   </td>
+                  <td className="py-3 px-2 text-white">{stream.date}</td>
                   <td className="py-3 px-2 text-white">{stream.numberOfStreams}</td>
                   <td className="py-3 px-2 text-white">{stream.hours}</td>
                   <td className="py-3 px-2 text-white">{stream.avgViewers}</td>

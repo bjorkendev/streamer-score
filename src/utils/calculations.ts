@@ -1,47 +1,45 @@
 import type {
   Settings,
+  PeriodSettings,
   StreamData,
   IntermediateMetrics,
   ComponentScores,
   CalculationResult,
 } from '../types';
+import { PERIOD_DAYS } from '../types';
 
 export function calculateLegitimacyScore(
-  streams: StreamData[],
+  stream: StreamData,
   settings: Settings
 ): CalculationResult {
-  const today = new Date();
-  const windowStart = new Date(today);
-  windowStart.setDate(today.getDate() - settings.windowStartDays);
-  const windowEnd = new Date(today);
-  windowEnd.setDate(today.getDate() - settings.windowEndDays);
+  // Get the period-specific settings
+  const periodSettings = settings.periods[stream.period];
+  const periodDays = PERIOD_DAYS[stream.period];
 
-  // Filter streams within the date window
-  const filteredStreams = streams.filter((stream) => {
-    const streamDate = new Date(stream.date);
-    return streamDate >= windowStart && streamDate <= windowEnd;
-  });
+  // Calculate date range
+  const endDate = new Date(stream.date);
+  const startDate = new Date(endDate);
+  startDate.setDate(endDate.getDate() - periodDays);
 
-  // Calculate intermediate metrics
-  const intermediateMetrics = calculateIntermediateMetrics(filteredStreams);
+  // Calculate intermediate metrics (using single stream as array for compatibility)
+  const intermediateMetrics = calculateIntermediateMetrics([stream]);
   
   // Calculate component scores
   const componentScores = calculateComponentScores(
     intermediateMetrics,
-    settings
+    periodSettings
   );
   
   // Calculate final score
   const finalScore = calculateFinalScore(
     componentScores,
     intermediateMetrics.viewerHours,
-    settings
+    periodSettings
   );
 
-
   return {
-    windowStart: windowStart.toISOString().split('T')[0],
-    windowEnd: windowEnd.toISOString().split('T')[0],
+    windowStart: startDate.toISOString().split('T')[0],
+    windowEnd: endDate.toISOString().split('T')[0],
     intermediateMetrics,
     componentScores,
     finalScore,
@@ -133,7 +131,7 @@ function calculateIntermediateMetrics(
 
 function calculateComponentScores(
   metrics: IntermediateMetrics,
-  settings: Settings
+  settings: PeriodSettings
 ): ComponentScores {
   // Streams_Score: MIN(100, 100*SQRT(streams / streamsCap))
   const streamsRatio = settings.streamsCap > 0 ? metrics.totalStreams / settings.streamsCap : 0;
@@ -191,7 +189,7 @@ function calculateComponentScores(
 function calculateFinalScore(
   scores: ComponentScores,
   viewerHours: number,
-  settings: Settings
+  settings: PeriodSettings
 ): number {
   // Weighted sum of component scores
   const weightedSum =

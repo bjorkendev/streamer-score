@@ -1,4 +1,5 @@
-import type { StreamData } from '../types';
+import type { StreamData, TimePeriod } from '../types';
+import { PERIOD_LABELS } from '../types';
 
 export function parseCSV(csvContent: string): StreamData[] {
   const lines = csvContent.trim().split('\n');
@@ -12,6 +13,7 @@ export function parseCSV(csvContent: string): StreamData[] {
   // Check for required columns
   const requiredColumns = [
     'name',
+    'period',
     'date',
     'numberofstreams',
     'hours',
@@ -47,6 +49,9 @@ export function parseCSV(csvContent: string): StreamData[] {
     const nameIdx = headers.findIndex(
       (h) => h === 'name'
     );
+    const periodIdx = headers.findIndex(
+      (h) => h === 'period' || h === 'timeperiod' || h === 'time period'
+    );
     const dateIdx = headers.findIndex(
       (h) => h === 'date'
     );
@@ -70,9 +75,13 @@ export function parseCSV(csvContent: string): StreamData[] {
     );
 
     try {
+      const periodValue = values[periodIdx]?.toLowerCase().trim();
+      const period = (periodValue?.includes('day') ? periodValue.replace(/\s+/g, '') : '60days') as TimePeriod;
+      
       const stream: StreamData = {
         id: crypto.randomUUID(),
         name: values[nameIdx]?.trim() || 'Unknown',
+        period: period,
         date: values[dateIdx],
         numberOfStreams: parseInt(values[numberOfStreamsIdx], 10),
         hours: parseFloat(values[hoursIdx]),
@@ -85,6 +94,7 @@ export function parseCSV(csvContent: string): StreamData[] {
       // Validate data
       if (
         !stream.name ||
+        !stream.period ||
         isNaN(stream.numberOfStreams) ||
         isNaN(stream.hours) ||
         isNaN(stream.avgViewers) ||
@@ -92,7 +102,7 @@ export function parseCSV(csvContent: string): StreamData[] {
         isNaN(stream.uniqueChatters) ||
         isNaN(stream.followers)
       ) {
-        console.warn(`Skipping line ${i + 1}: invalid numeric values`);
+        console.warn(`Skipping line ${i + 1}: invalid numeric values or missing period`);
         continue;
       }
 
@@ -108,6 +118,7 @@ export function parseCSV(csvContent: string): StreamData[] {
 export function exportToCSV(streams: StreamData[]): string {
   const headers = [
     'Name',
+    'Period',
     'Date',
     'NumberOfStreams',
     'Hours',
@@ -120,6 +131,7 @@ export function exportToCSV(streams: StreamData[]): string {
   const rows = streams.map((stream) =>
     [
       stream.name,
+      PERIOD_LABELS[stream.period],
       stream.date,
       stream.numberOfStreams,
       stream.hours,

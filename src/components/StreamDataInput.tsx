@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import type { StreamData } from '../types';
+import type { StreamData, TimePeriod } from '../types';
+import { PERIOD_LABELS, PERIOD_DAYS } from '../types';
 import { Tooltip } from './Tooltip';
 
 interface StreamDataInputProps {
@@ -9,6 +10,7 @@ interface StreamDataInputProps {
 export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
   const [formData, setFormData] = useState({
     name: '',
+    period: '60days' as TimePeriod,
     date: new Date().toISOString().split('T')[0],
     numberOfStreams: '',
     hours: '',
@@ -43,6 +45,7 @@ export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
 
     const stream: Omit<StreamData, 'id'> = {
       name: formData.name.trim(),
+      period: formData.period,
       date: formData.date,
       numberOfStreams: parseInteger(formData.numberOfStreams),
       hours: parseNumber(formData.hours),
@@ -72,6 +75,7 @@ export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
     // Reset form
     setFormData({
       name: '',
+      period: formData.period, // Keep the same period
       date: new Date().toISOString().split('T')[0],
       numberOfStreams: '',
       hours: '',
@@ -103,10 +107,12 @@ export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
     </label>
   );
 
+  const periodDays = PERIOD_DAYS[formData.period];
+
   return (
     <div className="bg-slate-800 rounded-lg p-6 shadow-lg">
-      <h3 className="text-xl font-bold mb-4 text-violet-400">Add Stream Data (60-Day Period)</h3>
-      <p className="text-sm text-gray-400 mb-4">Each entry represents aggregated data for a 60-day period ending on the date you specify.</p>
+      <h3 className="text-xl font-bold mb-4 text-violet-400">Add Stream Data</h3>
+      <p className="text-sm text-gray-400 mb-4">Each entry represents aggregated data for the selected time period ending on the date you specify.</p>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
@@ -114,21 +120,41 @@ export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
               label="Streamer Name" 
               tooltip="Name or identifier for this streamer (e.g., username, nickname, or any label to distinguish between different streamers)" 
             />
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  className="w-full px-3 py-2 bg-slate-900 border border-violet-600/30 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-violet-600"
-                  placeholder="e.g. AlexStreams"
-                  required
-                />
+            <input
+              type="text"
+              value={formData.name}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
+              className="w-full px-3 py-2 bg-slate-900 border border-violet-600/30 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-violet-600"
+              placeholder="e.g. AlexStreams"
+              required
+            />
+          </div>
+          <div>
+            <LabelWithTooltip 
+              label="Time Period" 
+              tooltip="Select the time period this data represents. Each period has different performance expectations and targets." 
+            />
+            <select
+              value={formData.period}
+              onChange={(e) =>
+                setFormData({ ...formData, period: e.target.value as TimePeriod })
+              }
+              className="w-full px-3 py-2 bg-slate-900 border border-violet-600/30 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-violet-600"
+              required
+            >
+              {Object.entries(PERIOD_LABELS).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
           </div>
           <div>
             <LabelWithTooltip 
               label="End Date" 
-              tooltip="The end date of your 60-day analysis period. Data will be calculated from 60 days before this date up to this date." 
+              tooltip={`The end date of your ${periodDays}-day analysis period. Data will be calculated from ${periodDays} days before this date up to this date.`}
             />
             <input
               type="date"
@@ -143,7 +169,7 @@ export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
           <div>
             <LabelWithTooltip 
               label="Number of Streams" 
-              tooltip="Total number of individual streaming sessions during the 60-day period. Streaming 1x per day = 60 streams (excellent consistency)." 
+              tooltip={`Total number of individual streaming sessions during the ${periodDays}-day period. Streaming 1x per day = ${periodDays} streams (excellent consistency).`}
             />
             <input
               type="number"
@@ -163,7 +189,7 @@ export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
           <div>
             <LabelWithTooltip 
               label="Hours Streamed" 
-              tooltip="Total hours streamed during the entire 60-day period (not per day)" 
+              tooltip={`Total hours streamed during the entire ${periodDays}-day period (not per day)`}
             />
             <input
               type="number"
@@ -182,7 +208,7 @@ export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
           <div>
             <LabelWithTooltip 
               label="Avg Viewers" 
-              tooltip="Average concurrent viewers across all streams during the 60-day period" 
+              tooltip={`Average concurrent viewers across all streams during the ${periodDays}-day period`}
             />
             <input
               type="number"
@@ -201,7 +227,7 @@ export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
           <div>
             <LabelWithTooltip 
               label="Messages" 
-              tooltip="Total chat messages sent during the entire 60-day period" 
+              tooltip={`Total chat messages sent during the entire ${periodDays}-day period`}
             />
             <input
               type="number"
@@ -221,7 +247,7 @@ export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
           <div>
             <LabelWithTooltip 
               label="Unique Chatters" 
-              tooltip="Total number of unique users who chatted during the 60-day period" 
+              tooltip={`Total number of unique users who chatted during the ${periodDays}-day period`}
             />
             <input
               type="number"
@@ -241,7 +267,7 @@ export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
           <div>
             <LabelWithTooltip 
               label="Followers Gained" 
-              tooltip="Total new followers gained during the entire 60-day period" 
+              tooltip={`Total new followers gained during the entire ${periodDays}-day period`}
             />
             <input
               type="number"
