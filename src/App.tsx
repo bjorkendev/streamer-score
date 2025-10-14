@@ -12,7 +12,7 @@ import type {
   StreamData,
   CalculationResult,
 } from './types';
-import { defaultSettings } from './types';
+import { defaultSettings, PERIOD_LABELS, PERIOD_DAYS } from './types';
 
 function App() {
   const [settings, setSettings] = useLocalStorage<SettingsType>(
@@ -27,38 +27,33 @@ function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [selectedStream, setSelectedStream] = useState<StreamData | null>(null);
 
-  // Migrate old data that doesn't have numberOfStreams field
+  // Migrate old data format to new period-based system
   useEffect(() => {
-    const needsMigration = streams.some(stream => 
-      typeof (stream as any).numberOfStreams === 'undefined'
+    // Check if data needs migration to new format with period field
+    const needsDataMigration = streams.some(stream => 
+      typeof (stream as any).period === 'undefined'
     );
     
-        if (needsMigration) {
-          const migratedStreams = streams.map(stream => ({
-            ...stream,
-            numberOfStreams: (stream as any).numberOfStreams || 1 // Default to 1 if missing
-          }));
-          setStreams(migratedStreams);
-        }
+    if (needsDataMigration) {
+      console.log('Migrating stream data to period-based system...');
+      const migratedStreams = streams.map(stream => ({
+        ...stream,
+        period: (stream as any).period || '60days', // Default to 60days for old data
+        numberOfStreams: (stream as any).numberOfStreams || 1,
+      }));
+      setStreams(migratedStreams);
+    }
   }, []);
 
-  // Migrate old settings that have daysCap/daysWeight instead of streamsCap/streamsWeight
+  // Migrate old settings format to new period-based system
   useEffect(() => {
     const needsSettingsMigration = 
-      typeof (settings as any).daysCap !== 'undefined' || 
-      typeof (settings as any).daysWeight !== 'undefined';
+      typeof (settings as any).periods === 'undefined' ||
+      typeof (settings as any).streamsCap !== 'undefined';
     
     if (needsSettingsMigration) {
-      const migratedSettings = {
-        ...defaultSettings, // Start with clean defaults
-        ...settings, // Overlay existing settings
-        streamsCap: (settings as any).daysCap || 60,
-        streamsWeight: (settings as any).daysWeight || 0.10,
-      };
-      // Remove old fields
-      delete (migratedSettings as any).daysCap;
-      delete (migratedSettings as any).daysWeight;
-      setSettings(migratedSettings);
+      console.log('Migrating settings to period-based system...');
+      setSettings(defaultSettings);
     }
   }, []);
 
@@ -73,7 +68,7 @@ function App() {
   // Calculate score for selected stream when it changes
   useEffect(() => {
     if (selectedStream) {
-      const calculatedResult = calculateLegitimacyScore([selectedStream], settings);
+      const calculatedResult = calculateLegitimacyScore(selectedStream, settings);
       setResult(calculatedResult);
     }
   }, [selectedStream, settings]);
@@ -192,10 +187,11 @@ function App() {
                       Viewing Score for: {selectedStream.name}
                     </h3>
                     <p className="text-sm text-blue-200">
-                      Period: {(() => {
+                      {PERIOD_LABELS[selectedStream.period]} Period: {(() => {
                         const end = new Date(selectedStream.date);
                         const start = new Date(end);
-                        start.setDate(end.getDate() - 60);
+                        const periodDays = PERIOD_DAYS[selectedStream.period];
+                        start.setDate(end.getDate() - periodDays);
                         return `${start.toISOString().split('T')[0]} to ${selectedStream.date}`;
                       })()}
                     </p>
