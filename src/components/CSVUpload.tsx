@@ -42,6 +42,16 @@ export function CSVUpload({ onStreamsUploaded }: CSVUploadProps) {
         <p className="text-xs text-gray-400">
           Each row should represent aggregated data for the specified time period. Period should be one of: 1day, 30days, 60days, 90days, 180days, 365days
         </p>
+        <a
+          href="/streamer-score/sample-data.csv"
+          download="sample-data.csv"
+          className="inline-flex items-center gap-2 px-3 py-2 bg-violet-600/20 border border-violet-600/30 hover:bg-violet-600/30 text-violet-300 text-sm rounded-md transition-colors"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          Download Sample CSV
+        </a>
         <input
           ref={fileInputRef}
           type="file"
