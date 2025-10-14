@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { StreamData, TimePeriod } from '../types';
 import { PERIOD_LABELS, PERIOD_DAYS } from '../types';
+import { CustomSelect } from './CustomSelect';
 
 interface StreamDataTableProps {
   streams: StreamData[];
@@ -123,19 +124,14 @@ export function StreamDataTable({
                     />
                   </td>
                   <td className="py-3 px-2">
-                    <select
+                    <CustomSelect
                       value={editData.period}
-                      onChange={(e) =>
-                        setEditData({ ...editData, period: e.target.value as TimePeriod })
-                      }
-                      className="w-full px-2 py-1 bg-slate-900 border border-violet-600/30 rounded text-white text-sm"
-                    >
-                      {Object.entries(PERIOD_LABELS).map(([value, label]) => (
-                        <option key={value} value={value}>
-                          {label}
-                        </option>
-                      ))}
-                    </select>
+                      onChange={(value) => setEditData({ ...editData, period: value as TimePeriod })}
+                      options={Object.entries(PERIOD_LABELS).map(([value, label]) => ({
+                        value,
+                        label,
+                      }))}
+                    />
                   </td>
                   <td className="py-3 px-2">
                     <input

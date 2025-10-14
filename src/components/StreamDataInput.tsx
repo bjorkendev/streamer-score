@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { StreamData, TimePeriod } from '../types';
 import { PERIOD_LABELS, PERIOD_DAYS } from '../types';
 import { Tooltip } from './Tooltip';
+import { CustomSelect } from './CustomSelect';
 
 interface StreamDataInputProps {
   onAddStream: (stream: Omit<StreamData, 'id'>) => void;
@@ -136,20 +137,15 @@ export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
               label="Time Period" 
               tooltip="Select the time period this data represents. Each period has different performance expectations and targets." 
             />
-            <select
+            <CustomSelect
               value={formData.period}
-              onChange={(e) =>
-                setFormData({ ...formData, period: e.target.value as TimePeriod })
-              }
-              className="w-full px-3 py-2 bg-slate-900 border border-violet-600/30 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-violet-600"
+              onChange={(value) => setFormData({ ...formData, period: value as TimePeriod })}
+              options={Object.entries(PERIOD_LABELS).map(([value, label]) => ({
+                value,
+                label,
+              }))}
               required
-            >
-              {Object.entries(PERIOD_LABELS).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
+            />
           </div>
           <div>
             <LabelWithTooltip 
