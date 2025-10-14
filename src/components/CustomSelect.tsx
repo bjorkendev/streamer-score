@@ -5,10 +5,9 @@ interface CustomSelectProps {
   onChange: (value: string) => void;
   options: { value: string; label: string }[];
   className?: string;
-  required?: boolean;
 }
 
-export function CustomSelect({ value, onChange, options, className = '', required }: CustomSelectProps) {
+export function CustomSelect({ value, onChange, options, className = '' }: CustomSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
