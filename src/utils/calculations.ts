@@ -191,20 +191,72 @@ function calculateFinalScore(
   viewerHours: number,
   settings: PeriodSettings
 ): number {
-  // Weighted sum of component scores
-  const weightedSum =
-    settings.streamsWeight * scores.streamsScore +
-    settings.hoursWeight * scores.hoursScore +
-    settings.viewersWeight * scores.viewersScore +
-    settings.mpvmWeight * scores.mpvmScore +
-    settings.ucp100Weight * scores.ucp100Score +
-    settings.f1kVHWeight * scores.f1kVHScore +
-    settings.consistencyWeight * scores.consistencyScore;
+  // Layer 1: Activity Score (Streams + Hours)
+  // Combines how often they stream and how long
+  const activityScore = (
+    (scores.streamsScore / 100) * 0.4 +
+    (scores.hoursScore / 100) * 0.6
+  ) * 100;
 
-  // Apply minimum viewer hours penalty
-  const penalty = Math.min(1, viewerHours / settings.minViewerHours);
+  // Layer 2: Reach Score (Viewers)
+  // Pure audience size
+  const reachScore = scores.viewersScore;
 
-  // Final score rounded to 1 decimal place
-  return Math.round(weightedSum * penalty * 10) / 10;
+  // Layer 3: Legitimacy Score (Engagement - MPVM + UCP100)
+  // This validates that viewers are real and engaged
+  // Using geometric mean so both metrics must be decent
+  const engagementScore = Math.sqrt(
+    (scores.mpvmScore / 100) * (scores.ucp100Score / 100)
+  ) * 100;
+
+  // Layer 4: Growth Score (F1kVH + Consistency)
+  // Measures sustainability and quality of growth
+  const growthScore = (
+    (scores.f1kVHScore / 100) * 0.7 +
+    (scores.consistencyScore / 100) * 0.3
+  ) * 100;
+
+  // Calculate intermediate metrics for red flag detection
+  // We need to derive these from the scores and settings
+  const estimatedUcp100 = (scores.ucp100Score / 100) * settings.ucp100Target;
+  const estimatedMpvm = (scores.mpvmScore / 100) * settings.mpvmTarget;
+
+  // Red flag detection: Suspicious patterns get severe penalties
+  const hasMinimalEngagement = estimatedUcp100 >= 0.5; // At least 0.5 chatters per 100 viewers
+  const hasAnyMessages = estimatedMpvm > 0.0001; // Some chat activity exists
+  const legitimacyMultiplier = (hasMinimalEngagement && hasAnyMessages) ? 1.0 : 0.1;
+
+  // Sample size confidence: Penalize insufficient data
+  const confidenceMultiplier = Math.min(1, viewerHours / settings.minViewerHours);
+
+  // Calculate layer multipliers (normalize to 0-1 range)
+  const activityMultiplier = activityScore / 100;
+  const reachMultiplier = reachScore / 100;
+  const engagementMultiplier = engagementScore / 100;
+  const growthMultiplier = growthScore / 100;
+
+  // Interdependent calculation: All layers must perform
+  // Using weighted geometric mean for balance
+  const weights = {
+    activity: 0.30,  // Must stream regularly
+    reach: 0.25,     // Must have audience
+    engagement: 0.30, // Must have real, engaged viewers (CRITICAL)
+    growth: 0.15,    // Must be building something
+  };
+
+  // Geometric mean with weights: (a^w1 × b^w2 × c^w3 × d^w4)
+  const geometricMean = Math.pow(
+    Math.pow(Math.max(0.01, activityMultiplier), weights.activity) *
+    Math.pow(Math.max(0.01, reachMultiplier), weights.reach) *
+    Math.pow(Math.max(0.01, engagementMultiplier), weights.engagement) *
+    Math.pow(Math.max(0.01, growthMultiplier), weights.growth),
+    1
+  );
+
+  // Apply all multipliers
+  const rawScore = geometricMean * 100 * legitimacyMultiplier * confidenceMultiplier;
+
+  // Round to 1 decimal place
+  return Math.round(rawScore * 10) / 10;
 }
 

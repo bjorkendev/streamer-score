@@ -231,6 +231,7 @@ function App() {
           {/* Stream Data Table */}
           <StreamDataTable
             streams={streams}
+            settings={settings}
             onUpdateStream={handleUpdateStream}
             onDeleteStream={handleDeleteStream}
             onViewScore={handleViewScore}

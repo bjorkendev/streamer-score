@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import type { StreamData, TimePeriod } from '../types';
+import type { StreamData, TimePeriod, Settings } from '../types';
 import { PERIOD_LABELS, PERIOD_DAYS } from '../types';
 import { CustomSelect } from './CustomSelect';
+import { calculateLegitimacyScore } from '../utils/calculations';
 
 interface StreamDataTableProps {
   streams: StreamData[];
+  settings: Settings;
   onUpdateStream: (id: string, updatedStream: StreamData) => void;
   onDeleteStream: (id: string) => void;
   onViewScore: (stream: StreamData) => void;
@@ -12,6 +14,7 @@ interface StreamDataTableProps {
 
 export function StreamDataTable({
   streams,
+  settings,
   onUpdateStream,
   onDeleteStream,
   onViewScore,
@@ -43,6 +46,13 @@ export function StreamDataTable({
 
   const getDateRange = (endDate: string, period: TimePeriod) => {
     const end = new Date(endDate);
+    // Check if date is valid
+    if (isNaN(end.getTime())) {
+      return {
+        start: 'Invalid Date',
+        end: endDate || 'Invalid Date'
+      };
+    }
     const start = new Date(end);
     const periodDays = PERIOD_DAYS[period];
     start.setDate(end.getDate() - periodDays);
@@ -98,6 +108,9 @@ export function StreamDataTable({
             </th>
             <th className="text-left py-3 px-2 text-gray-300 font-semibold">
               Followers
+            </th>
+            <th className="text-left py-3 px-2 text-gray-300 font-semibold">
+              Score
             </th>
             <th className="text-left py-3 px-2 text-gray-300 font-semibold">
               Actions
@@ -258,6 +271,17 @@ export function StreamDataTable({
                     {stream.uniqueChatters}
                   </td>
                   <td className="py-3 px-2 text-white">{stream.followers}</td>
+                  <td className="py-3 px-2">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-violet-900/50 text-violet-300 border border-violet-500/30">
+                      {(() => {
+                        try {
+                          return calculateLegitimacyScore(stream, settings).finalScore;
+                        } catch (e) {
+                          return 'Error';
+                        }
+                      })()}
+                    </span>
+                  </td>
                   <td className="py-3 px-2">
                     <div className="flex gap-2">
                       <button
