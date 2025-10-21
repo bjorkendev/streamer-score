@@ -91,8 +91,7 @@ export function StreamDataInput({ onAddStream, settings }: StreamDataInputProps)
       toast.error(
         (t) => (
           <div className="flex flex-col gap-2">
-            <div className="flex items-start gap-2">
-              <span className="text-xl">🚨</span>
+            <div className="flex items-start justify-between gap-2">
               <div className="flex-1">
                 <p className="font-bold text-sm mb-1">Critical Issue Detected</p>
                 <p className="text-xs">Very low chat activity for viewer count. Potential viewbotting detected!</p>
@@ -134,8 +133,7 @@ export function StreamDataInput({ onAddStream, settings }: StreamDataInputProps)
       toast.error(
         (t) => (
           <div className="flex flex-col gap-2">
-            <div className="flex items-start gap-2">
-              <span className="text-xl">🚨</span>
+            <div className="flex items-start justify-between gap-2">
               <div className="flex-1">
                 <p className="font-bold text-sm mb-1">Critical Issue Detected</p>
                 <p className="text-xs">Very few unique chatters for viewer count. Suspicious pattern detected!</p>
@@ -177,8 +175,7 @@ export function StreamDataInput({ onAddStream, settings }: StreamDataInputProps)
       toast(
         (t) => (
           <div className="flex flex-col gap-2">
-            <div className="flex items-start gap-2">
-              <span className="text-xl">⚠️</span>
+            <div className="flex items-start justify-between gap-2">
               <div className="flex-1">
                 <p className="font-bold text-sm mb-1">Warning</p>
                 <p className="text-xs">Below-average engagement for viewer count.</p>
@@ -223,8 +220,7 @@ export function StreamDataInput({ onAddStream, settings }: StreamDataInputProps)
       toast(
         (t) => (
           <div className="flex flex-col gap-2">
-            <div className="flex items-start gap-2">
-              <span className="text-xl">📊</span>
+            <div className="flex items-start justify-between gap-2">
               <div className="flex-1">
                 <p className="font-bold text-sm mb-1">Warning</p>
                 <p className="text-xs">High streaming hours but poor follower conversion.</p>
