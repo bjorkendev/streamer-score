@@ -1,8 +1,9 @@
-import type { CalculationResult } from '../types';
+import type { CalculationResult, StreamData } from '../types';
 import { Tooltip } from './Tooltip';
 
 interface ResultsDisplayProps {
   result: CalculationResult | null;
+  stream?: StreamData | null;
 }
 
 type RedFlagLevel = 'critical' | 'warning' | 'good';
@@ -12,7 +13,7 @@ interface RedFlag {
   message: string;
 }
 
-export function ResultsDisplay({ result }: ResultsDisplayProps) {
+export function ResultsDisplay({ result, stream }: ResultsDisplayProps) {
   if (!result) {
     return (
       <div className="bg-slate-800 rounded-lg p-6 shadow-lg">
@@ -30,31 +31,33 @@ export function ResultsDisplay({ result }: ResultsDisplayProps) {
   const detectRedFlags = (): RedFlag[] => {
     const flags: RedFlag[] = [];
     const avgViewers = intermediateMetrics.weightedAvgViewers;
+    const includeMessages = stream?.includeMessages ?? true;
+    const includeUniqueChatters = stream?.includeUniqueChatters ?? true;
 
-    // Critical: High viewers but extremely low engagement
-    if (avgViewers > 50 && componentScores.mpvmScore < 20) {
+    // Critical: High viewers but extremely low engagement (only if metrics are included)
+    if (includeMessages && avgViewers > 50 && componentScores.mpvmScore < 20) {
       flags.push({
         level: 'critical',
         message: `Very low chat activity (${componentScores.mpvmScore.toFixed(1)}/100) for ${avgViewers.toFixed(0)} avg viewers. This pattern is highly suspicious and may indicate viewbotting.`
       });
     }
 
-    if (avgViewers > 50 && componentScores.ucp100Score < 20) {
+    if (includeUniqueChatters && avgViewers > 50 && componentScores.ucp100Score < 20) {
       flags.push({
         level: 'critical',
         message: `Very few unique chatters (${componentScores.ucp100Score.toFixed(1)}/100) for ${avgViewers.toFixed(0)} avg viewers. This suggests non-organic viewership.`
       });
     }
 
-    // Warning: Moderate viewers with poor engagement
-    if (avgViewers > 30 && componentScores.mpvmScore < 40 && componentScores.mpvmScore >= 20) {
+    // Warning: Moderate viewers with poor engagement (only if metrics are included)
+    if (includeMessages && avgViewers > 30 && componentScores.mpvmScore < 40 && componentScores.mpvmScore >= 20) {
       flags.push({
         level: 'warning',
         message: `Below-average chat activity (${componentScores.mpvmScore.toFixed(1)}/100) for ${avgViewers.toFixed(0)} avg viewers. Consider encouraging more viewer interaction.`
       });
     }
 
-    if (avgViewers > 30 && componentScores.ucp100Score < 40 && componentScores.ucp100Score >= 20) {
+    if (includeUniqueChatters && avgViewers > 30 && componentScores.ucp100Score < 40 && componentScores.ucp100Score >= 20) {
       flags.push({
         level: 'warning',
         message: `Below-average chatter participation (${componentScores.ucp100Score.toFixed(1)}/100) for ${avgViewers.toFixed(0)} avg viewers. Most viewers are lurking rather than engaging.`

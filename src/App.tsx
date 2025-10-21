@@ -147,15 +147,15 @@ function App() {
     <div className="min-h-screen bg-slate-900 flex flex-col">
       {/* Toast Notifications */}
       <Toaster 
-        position="top-center"
+        position="bottom-right"
         toastOptions={{
+          duration: 10000,
           style: {
-            width: '100%',
-            maxWidth: '100%',
-            margin: 0,
-            borderRadius: 0,
-            padding: '16px 24px',
-            fontSize: '16px',
+            minWidth: '350px',
+            maxWidth: '500px',
+            padding: '16px',
+            borderRadius: '8px',
+            fontSize: '14px',
           },
         }}
       />
@@ -220,7 +220,7 @@ function App() {
                   </button>
                 </div>
               </div>
-              <ResultsDisplay result={result} />
+              <ResultsDisplay result={result} stream={selectedStream} />
             </>
           ) : streams.length > 0 ? (
             <div className="bg-slate-800 rounded-lg p-8 shadow-lg text-center">

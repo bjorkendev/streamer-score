@@ -86,76 +86,134 @@ export function StreamDataInput({ onAddStream, settings }: StreamDataInputProps)
     const avgViewers = result.intermediateMetrics.weightedAvgViewers;
     const scores = result.componentScores;
     
-    // Show toast notifications for issues
-    if (avgViewers > 50 && scores.mpvmScore < 20) {
-      toast.error('🚨 CRITICAL: Very low chat activity for viewer count. Potential viewbotting detected!', {
-        duration: 15000,
-        style: {
-          background: '#7f1d1d',
-          color: '#fecaca',
-          border: '2px solid #dc2626',
-          width: '100%',
-          maxWidth: '100%',
-          margin: 0,
-          borderRadius: 0,
-          padding: '20px 24px',
-          fontSize: '16px',
-          fontWeight: '600',
-        },
-      });
-    } else if (avgViewers > 50 && scores.ucp100Score < 20) {
-      toast.error('🚨 CRITICAL: Very few unique chatters for viewer count. Suspicious pattern detected!', {
-        duration: 15000,
-        style: {
-          background: '#7f1d1d',
-          color: '#fecaca',
-          border: '2px solid #dc2626',
-          width: '100%',
-          maxWidth: '100%',
-          margin: 0,
-          borderRadius: 0,
-          padding: '20px 24px',
-          fontSize: '16px',
-          fontWeight: '600',
-        },
-      });
-    } else if (avgViewers > 30 && (scores.mpvmScore < 40 || scores.ucp100Score < 40)) {
-      toast('⚠️ WARNING: Below-average engagement for viewer count.', {
-        duration: 15000,
-        icon: '⚠️',
-        style: {
-          background: '#713f12',
-          color: '#fef3c7',
-          border: '2px solid #ca8a04',
-          width: '100%',
-          maxWidth: '100%',
-          margin: 0,
-          borderRadius: 0,
-          padding: '20px 24px',
-          fontSize: '16px',
-          fontWeight: '600',
-        },
-      });
+    // Show toast notifications for issues (only if metrics are included)
+    if (stream.includeMessages && avgViewers > 50 && scores.mpvmScore < 20) {
+      toast.error(
+        (t) => (
+          <div className="flex flex-col gap-2">
+            <div className="flex items-start gap-2">
+              <span className="text-xl">🚨</span>
+              <div className="flex-1">
+                <p className="font-bold text-sm mb-1">Critical Issue Detected</p>
+                <p className="text-xs">Very low chat activity for viewer count. Potential viewbotting detected!</p>
+              </div>
+            </div>
+            <div className="w-full bg-red-950 rounded-full h-1 overflow-hidden">
+              <div 
+                className="h-full bg-red-400 transition-all duration-[10000ms] ease-linear"
+                style={{ width: t.visible ? '0%' : '100%' }}
+              />
+            </div>
+          </div>
+        ),
+        {
+          duration: 10000,
+          style: {
+            background: '#7f1d1d',
+            color: '#fecaca',
+            border: '2px solid #dc2626',
+            minWidth: '350px',
+            maxWidth: '500px',
+            padding: '16px',
+          },
+        }
+      );
+    } else if (stream.includeUniqueChatters && avgViewers > 50 && scores.ucp100Score < 20) {
+      toast.error(
+        (t) => (
+          <div className="flex flex-col gap-2">
+            <div className="flex items-start gap-2">
+              <span className="text-xl">🚨</span>
+              <div className="flex-1">
+                <p className="font-bold text-sm mb-1">Critical Issue Detected</p>
+                <p className="text-xs">Very few unique chatters for viewer count. Suspicious pattern detected!</p>
+              </div>
+            </div>
+            <div className="w-full bg-red-950 rounded-full h-1 overflow-hidden">
+              <div 
+                className="h-full bg-red-400 transition-all duration-[10000ms] ease-linear"
+                style={{ width: t.visible ? '0%' : '100%' }}
+              />
+            </div>
+          </div>
+        ),
+        {
+          duration: 10000,
+          style: {
+            background: '#7f1d1d',
+            color: '#fecaca',
+            border: '2px solid #dc2626',
+            minWidth: '350px',
+            maxWidth: '500px',
+            padding: '16px',
+          },
+        }
+      );
+    } else if (avgViewers > 30 && ((stream.includeMessages && scores.mpvmScore < 40) || (stream.includeUniqueChatters && scores.ucp100Score < 40))) {
+      toast(
+        (t) => (
+          <div className="flex flex-col gap-2">
+            <div className="flex items-start gap-2">
+              <span className="text-xl">⚠️</span>
+              <div className="flex-1">
+                <p className="font-bold text-sm mb-1">Warning</p>
+                <p className="text-xs">Below-average engagement for viewer count.</p>
+              </div>
+            </div>
+            <div className="w-full bg-yellow-950 rounded-full h-1 overflow-hidden">
+              <div 
+                className="h-full bg-yellow-400 transition-all duration-[10000ms] ease-linear"
+                style={{ width: t.visible ? '0%' : '100%' }}
+              />
+            </div>
+          </div>
+        ),
+        {
+          duration: 10000,
+          style: {
+            background: '#713f12',
+            color: '#fef3c7',
+            border: '2px solid #ca8a04',
+            minWidth: '350px',
+            maxWidth: '500px',
+            padding: '16px',
+          },
+        }
+      );
     }
     
     // Show warning for poor growth despite good activity
     if (scores.hoursScore > 70 && scores.f1kVHScore < 30) {
-      toast('⚠️ WARNING: High streaming hours but poor follower conversion.', {
-        duration: 15000,
-        icon: '📊',
-        style: {
-          background: '#713f12',
-          color: '#fef3c7',
-          border: '2px solid #ca8a04',
-          width: '100%',
-          maxWidth: '100%',
-          margin: 0,
-          borderRadius: 0,
-          padding: '20px 24px',
-          fontSize: '16px',
-          fontWeight: '600',
-        },
-      });
+      toast(
+        (t) => (
+          <div className="flex flex-col gap-2">
+            <div className="flex items-start gap-2">
+              <span className="text-xl">📊</span>
+              <div className="flex-1">
+                <p className="font-bold text-sm mb-1">Warning</p>
+                <p className="text-xs">High streaming hours but poor follower conversion.</p>
+              </div>
+            </div>
+            <div className="w-full bg-yellow-950 rounded-full h-1 overflow-hidden">
+              <div 
+                className="h-full bg-yellow-400 transition-all duration-[10000ms] ease-linear"
+                style={{ width: t.visible ? '0%' : '100%' }}
+              />
+            </div>
+          </div>
+        ),
+        {
+          duration: 10000,
+          style: {
+            background: '#713f12',
+            color: '#fef3c7',
+            border: '2px solid #ca8a04',
+            minWidth: '350px',
+            maxWidth: '500px',
+            padding: '16px',
+          },
+        }
+      );
     }
 
     // Reset form
