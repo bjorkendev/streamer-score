@@ -273,7 +273,7 @@ export function StreamDataInput({ onAddStream, settings }: StreamDataInputProps)
   };
 
   const LabelWithTooltip = ({ label, tooltip }: { label: string; tooltip: string }) => (
-    <label className="block text-sm font-medium mb-2 text-gray-300 flex items-center gap-1">
+    <label className="text-sm font-medium text-gray-300 flex items-center gap-1">
       {label}
       <Tooltip content={tooltip}>
         <svg 
@@ -413,10 +413,10 @@ export function StreamDataInput({ onAddStream, settings }: StreamDataInputProps)
                 onChange={(e) =>
                   setFormData({ ...formData, includeMessages: e.target.checked })
                 }
-                className="w-4 h-4 text-violet-600 bg-slate-900 border-violet-600/30 rounded focus:ring-violet-600 focus:ring-2"
+                className="w-4 h-4 text-violet-600 bg-slate-900 border-violet-600/30 rounded focus:ring-violet-600 focus:ring-2 flex-shrink-0"
               />
               <LabelWithTooltip 
-                label="Messages (Optional)" 
+                label="Messages" 
                 tooltip={`Total chat messages sent during the entire ${periodDays}-day period. Uncheck if you don't have this data.`}
               />
             </div>
@@ -445,10 +445,10 @@ export function StreamDataInput({ onAddStream, settings }: StreamDataInputProps)
                 onChange={(e) =>
                   setFormData({ ...formData, includeUniqueChatters: e.target.checked })
                 }
-                className="w-4 h-4 text-violet-600 bg-slate-900 border-violet-600/30 rounded focus:ring-violet-600 focus:ring-2"
+                className="w-4 h-4 text-violet-600 bg-slate-900 border-violet-600/30 rounded focus:ring-violet-600 focus:ring-2 flex-shrink-0"
               />
               <LabelWithTooltip 
-                label="Unique Chatters (Optional)" 
+                label="Unique Chatters" 
                 tooltip={`Total number of unique users who chatted during the ${periodDays}-day period. Uncheck if you don't have this data.`}
               />
             </div>
@@ -469,10 +469,12 @@ export function StreamDataInput({ onAddStream, settings }: StreamDataInputProps)
             />
           </div>
           <div>
-            <LabelWithTooltip 
-              label="Followers Gained" 
-              tooltip={`Total new followers gained during the entire ${periodDays}-day period`}
-            />
+            <div className="mb-2">
+              <LabelWithTooltip 
+                label="Followers Gained" 
+                tooltip={`Total new followers gained during the entire ${periodDays}-day period`}
+              />
+            </div>
             <input
               type="number"
               value={formData.followers}
