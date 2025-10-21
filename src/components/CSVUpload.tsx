@@ -34,6 +34,8 @@ export function CSVUpload({ onStreamsUploaded }: CSVUploadProps) {
   return (
     <div className="bg-slate-800 rounded-lg p-6 shadow-lg">
       <h3 className="text-xl font-bold mb-4 text-violet-400">Upload CSV</h3>
+      
+      {/* Standard CSV Upload */}
       <div className="space-y-4">
         <p className="text-sm text-gray-300">
           Upload a CSV file with columns: Name, Period, Date, NumberOfStreams, Hours, AvgViewers, Messages,
@@ -65,6 +67,42 @@ export function CSVUpload({ onStreamsUploaded }: CSVUploadProps) {
             hover:file:bg-violet-700
             file:cursor-pointer cursor-pointer"
         />
+      </div>
+
+      {/* Horizontal Separator */}
+      <div className="my-6 border-t border-violet-600/20"></div>
+
+      {/* StreamCharts CSV Upload */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <h4 className="text-lg font-semibold text-violet-300">StreamCharts Import</h4>
+          <span className="px-2 py-1 bg-yellow-900/30 border border-yellow-600/30 text-yellow-300 text-xs rounded-full">
+            Coming Soon
+          </span>
+        </div>
+        <p className="text-sm text-gray-300">
+          Import data directly from StreamCharts exports. This feature will support StreamCharts CSV format with automatic column mapping.
+        </p>
+        <p className="text-xs text-gray-400">
+          Working on it. Check back soon for this feature.
+        </p>
+        <div className="relative">
+          <input
+            type="file"
+            accept=".csv"
+            disabled
+            className="block w-full text-sm text-gray-500
+              file:mr-4 file:py-2 file:px-4
+              file:rounded-md file:border-0
+              file:text-sm file:font-semibold
+              file:bg-gray-600 file:text-gray-400
+              file:cursor-not-allowed cursor-not-allowed
+              opacity-50"
+          />
+          <div className="absolute inset-0 flex items-center justify-center bg-slate-900/50 rounded-md">
+            <span className="text-sm text-gray-400 font-medium">Coming Soon</span>
+          </div>
+        </div>
       </div>
     </div>
   );
