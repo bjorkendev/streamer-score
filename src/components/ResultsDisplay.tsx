@@ -244,7 +244,7 @@ export function ResultsDisplay({ result, stream }: ResultsDisplayProps) {
           Legitimacy Score
         </h2>
         <div className="text-7xl font-bold text-white mb-2">
-          {finalScore.toFixed(1)}
+          {formatScore(finalScore)}
         </div>
         <div className="text-sm text-white/70">
           Analysis Period: {result.windowStart} to {result.windowEnd}

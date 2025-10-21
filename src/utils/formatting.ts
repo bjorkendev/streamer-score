@@ -24,11 +24,15 @@ export function formatNumberWithDecimals(num: number): string {
 }
 
 /**
- * Format a number with commas and 1 decimal place
+ * Format a number with commas and 1 decimal place, but show whole numbers without .0
  * @param num - The number to format
- * @returns Formatted string with commas and 1 decimal place (e.g., "1,234.5")
+ * @returns Formatted string with commas and 1 decimal place if needed (e.g., "1,234.5" or "1,234")
  */
 export function formatNumberWithOneDecimal(num: number): string {
+  // If the number is a whole number, don't show decimal
+  if (num % 1 === 0) {
+    return num.toLocaleString();
+  }
   return num.toLocaleString(undefined, {
     minimumFractionDigits: 1,
     maximumFractionDigits: 1
