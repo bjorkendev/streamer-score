@@ -10,7 +10,7 @@ export function parseCSV(csvContent: string): StreamData[] {
 
   const headers = lines[0].split(',').map((h) => h.trim().toLowerCase());
   
-  // Check for required columns
+  // Check for required columns (Messages and UniqueChatters are now optional)
   const requiredColumns = [
     'name',
     'period',
@@ -18,8 +18,6 @@ export function parseCSV(csvContent: string): StreamData[] {
     'numberofstreams',
     'hours',
     'avgviewers',
-    'messages',
-    'uniquechatters',
     'followers',
   ];
   
@@ -32,6 +30,10 @@ export function parseCSV(csvContent: string): StreamData[] {
       `Missing required columns: ${missingColumns.join(', ')}`
     );
   }
+  
+  // Check if optional columns are present
+  const hasMessages = headers.includes('messages');
+  const hasUniqueChatters = headers.includes('uniquechatters') || headers.includes('unique chatters');
 
   const streams: StreamData[] = [];
 
@@ -86,21 +88,23 @@ export function parseCSV(csvContent: string): StreamData[] {
         numberOfStreams: parseInt(values[numberOfStreamsIdx], 10),
         hours: parseFloat(values[hoursIdx]),
         avgViewers: parseFloat(values[avgViewersIdx]),
-        messages: parseInt(values[messagesIdx], 10),
-        uniqueChatters: parseInt(values[uniqueChattersIdx], 10),
+        messages: hasMessages ? parseInt(values[messagesIdx], 10) : 0,
+        uniqueChatters: hasUniqueChatters ? parseInt(values[uniqueChattersIdx], 10) : 0,
         followers: parseInt(values[followersIdx], 10),
+        includeMessages: hasMessages,
+        includeUniqueChatters: hasUniqueChatters,
       };
 
-      // Validate data
+      // Validate data (excluding optional fields)
       if (
         !stream.name ||
         !stream.period ||
         isNaN(stream.numberOfStreams) ||
         isNaN(stream.hours) ||
         isNaN(stream.avgViewers) ||
-        isNaN(stream.messages) ||
-        isNaN(stream.uniqueChatters) ||
-        isNaN(stream.followers)
+        isNaN(stream.followers) ||
+        (hasMessages && isNaN(stream.messages)) ||
+        (hasUniqueChatters && isNaN(stream.uniqueChatters))
       ) {
         console.warn(`Skipping line ${i + 1}: invalid numeric values or missing period`);
         continue;
@@ -126,6 +130,8 @@ export function exportToCSV(streams: StreamData[]): string {
     'Messages',
     'UniqueChatters',
     'Followers',
+    'IncludeMessages',
+    'IncludeUniqueChatters',
   ];
 
   const rows = streams.map((stream) =>
@@ -139,6 +145,8 @@ export function exportToCSV(streams: StreamData[]): string {
       stream.messages,
       stream.uniqueChatters,
       stream.followers,
+      stream.includeMessages ?? true,
+      stream.includeUniqueChatters ?? true,
     ].join(',')
   );
 

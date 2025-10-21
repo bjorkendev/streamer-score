@@ -57,6 +57,9 @@ export interface StreamData {
   messages: number;
   uniqueChatters: number;
   followers: number;
+  // Optional metric flags
+  includeMessages?: boolean; // Whether to include messages/MPVM in calculation
+  includeUniqueChatters?: boolean; // Whether to include unique chatters/UCP100 in calculation
 }
 
 export interface IntermediateMetrics {

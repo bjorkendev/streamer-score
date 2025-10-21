@@ -30,11 +30,13 @@ export function calculateLegitimacyScore(
     periodSettings
   );
   
-  // Calculate final score
+  // Calculate final score with optional metrics
   const finalScore = calculateFinalScore(
     componentScores,
     intermediateMetrics.viewerHours,
-    periodSettings
+    periodSettings,
+    stream.includeMessages ?? true,
+    stream.includeUniqueChatters ?? true
   );
 
   return {
@@ -189,7 +191,9 @@ function calculateComponentScores(
 function calculateFinalScore(
   scores: ComponentScores,
   viewerHours: number,
-  settings: PeriodSettings
+  settings: PeriodSettings,
+  includeMessages: boolean = true,
+  includeUniqueChatters: boolean = true
 ): number {
   // Layer 1: Activity Score (Streams + Hours)
   // Combines how often they stream and how long
@@ -204,10 +208,34 @@ function calculateFinalScore(
 
   // Layer 3: Legitimacy Score (Engagement - MPVM + UCP100)
   // This validates that viewers are real and engaged
-  // Using geometric mean so both metrics must be decent
-  const engagementScore = Math.sqrt(
-    (scores.mpvmScore / 100) * (scores.ucp100Score / 100)
-  ) * 100;
+  // Handle optional metrics
+  let engagementScore = 100; // Default to perfect if no engagement metrics
+  let legitimacyMultiplier = 1.0;
+  
+  if (includeMessages && includeUniqueChatters) {
+    // Both metrics available - use geometric mean
+    engagementScore = Math.sqrt(
+      (scores.mpvmScore / 100) * (scores.ucp100Score / 100)
+    ) * 100;
+    
+    // Red flag detection when both metrics are available
+    const estimatedUcp100 = (scores.ucp100Score / 100) * settings.ucp100Target;
+    const estimatedMpvm = (scores.mpvmScore / 100) * settings.mpvmTarget;
+    const hasMinimalEngagement = estimatedUcp100 >= 0.5;
+    const hasAnyMessages = estimatedMpvm > 0.0001;
+    legitimacyMultiplier = (hasMinimalEngagement && hasAnyMessages) ? 1.0 : 0.1;
+  } else if (includeMessages) {
+    // Only messages available
+    engagementScore = scores.mpvmScore;
+    const estimatedMpvm = (scores.mpvmScore / 100) * settings.mpvmTarget;
+    legitimacyMultiplier = estimatedMpvm > 0.0001 ? 1.0 : 0.1;
+  } else if (includeUniqueChatters) {
+    // Only unique chatters available
+    engagementScore = scores.ucp100Score;
+    const estimatedUcp100 = (scores.ucp100Score / 100) * settings.ucp100Target;
+    legitimacyMultiplier = estimatedUcp100 >= 0.5 ? 1.0 : 0.1;
+  }
+  // If neither is included, engagementScore stays at 100 (neutral) and no red flag detection
 
   // Layer 4: Growth Score (F1kVH + Consistency)
   // Measures sustainability and quality of growth
@@ -215,16 +243,6 @@ function calculateFinalScore(
     (scores.f1kVHScore / 100) * 0.7 +
     (scores.consistencyScore / 100) * 0.3
   ) * 100;
-
-  // Calculate intermediate metrics for red flag detection
-  // We need to derive these from the scores and settings
-  const estimatedUcp100 = (scores.ucp100Score / 100) * settings.ucp100Target;
-  const estimatedMpvm = (scores.mpvmScore / 100) * settings.mpvmTarget;
-
-  // Red flag detection: Suspicious patterns get severe penalties
-  const hasMinimalEngagement = estimatedUcp100 >= 0.5; // At least 0.5 chatters per 100 viewers
-  const hasAnyMessages = estimatedMpvm > 0.0001; // Some chat activity exists
-  const legitimacyMultiplier = (hasMinimalEngagement && hasAnyMessages) ? 1.0 : 0.1;
 
   // Sample size confidence: Penalize insufficient data
   const confidenceMultiplier = Math.min(1, viewerHours / settings.minViewerHours);
@@ -236,22 +254,46 @@ function calculateFinalScore(
   const growthMultiplier = growthScore / 100;
 
   // Interdependent calculation: All layers must perform
-  // Using weighted geometric mean for balance
-  const weights = {
-    activity: 0.30,  // Must stream regularly
-    reach: 0.25,     // Must have audience
-    engagement: 0.30, // Must have real, engaged viewers (CRITICAL)
-    growth: 0.15,    // Must be building something
+  // Redistribute weights based on what metrics are available
+  let weights = {
+    activity: 0.30,
+    reach: 0.25,
+    engagement: 0.30,
+    growth: 0.15,
   };
 
+  // If engagement metrics are not available, redistribute their weight
+  if (!includeMessages && !includeUniqueChatters) {
+    // Redistribute engagement weight to activity and reach
+    weights = {
+      activity: 0.40,  // +0.10
+      reach: 0.40,     // +0.15
+      engagement: 0.0,
+      growth: 0.20,    // +0.05
+    };
+  }
+
   // Geometric mean with weights: (a^w1 × b^w2 × c^w3 × d^w4)
-  const geometricMean = Math.pow(
-    Math.pow(Math.max(0.01, activityMultiplier), weights.activity) *
-    Math.pow(Math.max(0.01, reachMultiplier), weights.reach) *
-    Math.pow(Math.max(0.01, engagementMultiplier), weights.engagement) *
-    Math.pow(Math.max(0.01, growthMultiplier), weights.growth),
-    1
-  );
+  let geometricMean: number;
+  
+  if (weights.engagement === 0) {
+    // Don't include engagement in calculation
+    geometricMean = Math.pow(
+      Math.pow(Math.max(0.01, activityMultiplier), weights.activity) *
+      Math.pow(Math.max(0.01, reachMultiplier), weights.reach) *
+      Math.pow(Math.max(0.01, growthMultiplier), weights.growth),
+      1
+    );
+  } else {
+    // Include all layers
+    geometricMean = Math.pow(
+      Math.pow(Math.max(0.01, activityMultiplier), weights.activity) *
+      Math.pow(Math.max(0.01, reachMultiplier), weights.reach) *
+      Math.pow(Math.max(0.01, engagementMultiplier), weights.engagement) *
+      Math.pow(Math.max(0.01, growthMultiplier), weights.growth),
+      1
+    );
+  }
 
   // Apply all multipliers
   const rawScore = geometricMean * 100 * legitimacyMultiplier * confidenceMultiplier;

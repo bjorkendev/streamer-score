@@ -1,14 +1,17 @@
 import { useState } from 'react';
-import type { StreamData, TimePeriod } from '../types';
+import toast from 'react-hot-toast';
+import type { StreamData, TimePeriod, Settings } from '../types';
 import { PERIOD_LABELS, PERIOD_DAYS } from '../types';
 import { Tooltip } from './Tooltip';
 import { CustomSelect } from './CustomSelect';
+import { calculateLegitimacyScore } from '../utils/calculations';
 
 interface StreamDataInputProps {
   onAddStream: (stream: Omit<StreamData, 'id'>) => void;
+  settings: Settings;
 }
 
-export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
+export function StreamDataInput({ onAddStream, settings }: StreamDataInputProps) {
   const [formData, setFormData] = useState({
     name: '',
     period: '60days' as TimePeriod,
@@ -19,6 +22,8 @@ export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
     messages: '',
     uniqueChatters: '',
     followers: '',
+    includeMessages: true,
+    includeUniqueChatters: true,
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -51,9 +56,11 @@ export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
       numberOfStreams: parseInteger(formData.numberOfStreams),
       hours: parseNumber(formData.hours),
       avgViewers: parseNumber(formData.avgViewers),
-      messages: parseInteger(formData.messages),
-      uniqueChatters: parseInteger(formData.uniqueChatters),
+      messages: formData.includeMessages ? parseInteger(formData.messages) : 0,
+      uniqueChatters: formData.includeUniqueChatters ? parseInteger(formData.uniqueChatters) : 0,
       followers: parseInteger(formData.followers),
+      includeMessages: formData.includeMessages,
+      includeUniqueChatters: formData.includeUniqueChatters,
     };
 
     // Enhanced validation with better error messages
@@ -62,8 +69,8 @@ export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
     if (stream.numberOfStreams <= 0) errors.push('Number of streams must be greater than 0');
     if (stream.hours <= 0) errors.push('Hours must be greater than 0');
     if (stream.avgViewers <= 0) errors.push('Average viewers must be greater than 0');
-    if (stream.messages <= 0) errors.push('Messages must be greater than 0');
-    if (stream.uniqueChatters <= 0) errors.push('Unique chatters must be greater than 0');
+    if (formData.includeMessages && stream.messages <= 0) errors.push('Messages must be greater than 0');
+    if (formData.includeUniqueChatters && stream.uniqueChatters <= 0) errors.push('Unique chatters must be greater than 0');
     if (stream.followers < 0) errors.push('Followers cannot be negative');
 
     if (errors.length > 0) {
@@ -72,6 +79,84 @@ export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
     }
 
     onAddStream(stream);
+
+    // Check for red flags and show toasts
+    const streamWithId = { ...stream, id: crypto.randomUUID() };
+    const result = calculateLegitimacyScore(streamWithId, settings);
+    const avgViewers = result.intermediateMetrics.weightedAvgViewers;
+    const scores = result.componentScores;
+    
+    // Show toast notifications for issues
+    if (avgViewers > 50 && scores.mpvmScore < 20) {
+      toast.error('🚨 CRITICAL: Very low chat activity for viewer count. Potential viewbotting detected!', {
+        duration: 15000,
+        style: {
+          background: '#7f1d1d',
+          color: '#fecaca',
+          border: '2px solid #dc2626',
+          width: '100%',
+          maxWidth: '100%',
+          margin: 0,
+          borderRadius: 0,
+          padding: '20px 24px',
+          fontSize: '16px',
+          fontWeight: '600',
+        },
+      });
+    } else if (avgViewers > 50 && scores.ucp100Score < 20) {
+      toast.error('🚨 CRITICAL: Very few unique chatters for viewer count. Suspicious pattern detected!', {
+        duration: 15000,
+        style: {
+          background: '#7f1d1d',
+          color: '#fecaca',
+          border: '2px solid #dc2626',
+          width: '100%',
+          maxWidth: '100%',
+          margin: 0,
+          borderRadius: 0,
+          padding: '20px 24px',
+          fontSize: '16px',
+          fontWeight: '600',
+        },
+      });
+    } else if (avgViewers > 30 && (scores.mpvmScore < 40 || scores.ucp100Score < 40)) {
+      toast('⚠️ WARNING: Below-average engagement for viewer count.', {
+        duration: 15000,
+        icon: '⚠️',
+        style: {
+          background: '#713f12',
+          color: '#fef3c7',
+          border: '2px solid #ca8a04',
+          width: '100%',
+          maxWidth: '100%',
+          margin: 0,
+          borderRadius: 0,
+          padding: '20px 24px',
+          fontSize: '16px',
+          fontWeight: '600',
+        },
+      });
+    }
+    
+    // Show warning for poor growth despite good activity
+    if (scores.hoursScore > 70 && scores.f1kVHScore < 30) {
+      toast('⚠️ WARNING: High streaming hours but poor follower conversion.', {
+        duration: 15000,
+        icon: '📊',
+        style: {
+          background: '#713f12',
+          color: '#fef3c7',
+          border: '2px solid #ca8a04',
+          width: '100%',
+          maxWidth: '100%',
+          margin: 0,
+          borderRadius: 0,
+          padding: '20px 24px',
+          fontSize: '16px',
+          fontWeight: '600',
+        },
+      });
+    }
 
     // Reset form
     setFormData({
@@ -84,6 +169,8 @@ export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
       messages: '',
       uniqueChatters: '',
       followers: '',
+      includeMessages: formData.includeMessages, // Keep the same settings
+      includeUniqueChatters: formData.includeUniqueChatters,
     });
   };
 
@@ -220,43 +307,67 @@ export function StreamDataInput({ onAddStream }: StreamDataInputProps) {
             />
           </div>
           <div>
-            <LabelWithTooltip 
-              label="Messages" 
-              tooltip={`Total chat messages sent during the entire ${periodDays}-day period`}
-            />
+            <div className="flex items-center gap-2 mb-2">
+              <input
+                type="checkbox"
+                id="includeMessages"
+                checked={formData.includeMessages}
+                onChange={(e) =>
+                  setFormData({ ...formData, includeMessages: e.target.checked })
+                }
+                className="w-4 h-4 text-violet-600 bg-slate-900 border-violet-600/30 rounded focus:ring-violet-600 focus:ring-2"
+              />
+              <LabelWithTooltip 
+                label="Messages (Optional)" 
+                tooltip={`Total chat messages sent during the entire ${periodDays}-day period. Uncheck if you don't have this data.`}
+              />
+            </div>
             <input
               type="number"
               value={formData.messages}
               onChange={(e) =>
                 setFormData({ ...formData, messages: e.target.value })
               }
-              className="w-full px-3 py-2 bg-slate-900 border border-violet-600/30 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-violet-600"
+              disabled={!formData.includeMessages}
+              className="w-full px-3 py-2 bg-slate-900 border border-violet-600/30 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-violet-600 disabled:opacity-50 disabled:cursor-not-allowed"
               placeholder="e.g. 15000"
               min="1"
               step="1"
               inputMode="numeric"
               pattern="[0-9]*"
-              required
+              required={formData.includeMessages}
             />
           </div>
           <div>
-            <LabelWithTooltip 
-              label="Unique Chatters" 
-              tooltip={`Total number of unique users who chatted during the ${periodDays}-day period`}
-            />
+            <div className="flex items-center gap-2 mb-2">
+              <input
+                type="checkbox"
+                id="includeUniqueChatters"
+                checked={formData.includeUniqueChatters}
+                onChange={(e) =>
+                  setFormData({ ...formData, includeUniqueChatters: e.target.checked })
+                }
+                className="w-4 h-4 text-violet-600 bg-slate-900 border-violet-600/30 rounded focus:ring-violet-600 focus:ring-2"
+              />
+              <LabelWithTooltip 
+                label="Unique Chatters (Optional)" 
+                tooltip={`Total number of unique users who chatted during the ${periodDays}-day period. Uncheck if you don't have this data.`}
+              />
+            </div>
             <input
               type="number"
               value={formData.uniqueChatters}
               onChange={(e) =>
                 setFormData({ ...formData, uniqueChatters: e.target.value })
               }
-              className="w-full px-3 py-2 bg-slate-900 border border-violet-600/30 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-violet-600"
+              disabled={!formData.includeUniqueChatters}
+              className="w-full px-3 py-2 bg-slate-900 border border-violet-600/30 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-violet-600 disabled:opacity-50 disabled:cursor-not-allowed"
               placeholder="e.g. 800"
               min="1"
               step="1"
               inputMode="numeric"
               pattern="[0-9]*"
-              required
+              required={formData.includeUniqueChatters}
             />
           </div>
           <div>

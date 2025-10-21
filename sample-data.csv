@@ -1,5 +1,6 @@
-Name,Period,Date,NumberOfStreams,Hours,AvgViewers,Messages,UniqueChatters,Followers
-SampleStreamer,60days,2025-10-13,45,120,150,18500,850,350
-SampleStreamer,60days,2025-09-13,42,115,145,17200,820,330
-SampleStreamer,30days,2025-08-13,25,60,140,9000,780,200
-
+Name,Period,Date,NumberOfStreams,Hours,AvgViewers,Messages,UniqueChatters,Followers,IncludeMessages,IncludeUniqueChatters
+StreamerOne,60days,2025-01-15,45,120,150,15000,800,250,true,true
+StreamerTwo,30days,2025-01-20,25,80,200,20000,1200,400,true,true
+StreamerThree,90days,2024-12-31,60,180,100,8000,500,150,true,true
+StreamerFour,60days,2025-01-10,40,100,175,0,0,300,false,false
+StreamerFive,30days,2025-01-25,20,60,120,10000,0,180,true,false

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Toaster } from 'react-hot-toast';
 import { Settings } from './components/Settings';
 import { StreamDataInput } from './components/StreamDataInput';
 import { CSVUpload } from './components/CSVUpload';
@@ -144,6 +145,21 @@ function App() {
 
   return (
     <div className="min-h-screen bg-slate-900 flex flex-col">
+      {/* Toast Notifications */}
+      <Toaster 
+        position="top-center"
+        toastOptions={{
+          style: {
+            width: '100%',
+            maxWidth: '100%',
+            margin: 0,
+            borderRadius: 0,
+            padding: '16px 24px',
+            fontSize: '16px',
+          },
+        }}
+      />
+      
       {/* Header */}
       <header className="bg-slate-800 shadow-lg border-b border-violet-600/20">
         <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
@@ -224,7 +240,7 @@ function App() {
 
           {/* Data Input Section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <StreamDataInput onAddStream={handleAddStream} />
+            <StreamDataInput onAddStream={handleAddStream} settings={settings} />
             <CSVUpload onStreamsUploaded={handleStreamsUploaded} />
           </div>
 

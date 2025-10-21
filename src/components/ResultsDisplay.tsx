@@ -5,6 +5,13 @@ interface ResultsDisplayProps {
   result: CalculationResult | null;
 }
 
+type RedFlagLevel = 'critical' | 'warning' | 'good';
+
+interface RedFlag {
+  level: RedFlagLevel;
+  message: string;
+}
+
 export function ResultsDisplay({ result }: ResultsDisplayProps) {
   if (!result) {
     return (
@@ -19,6 +26,102 @@ export function ResultsDisplay({ result }: ResultsDisplayProps) {
 
   const { intermediateMetrics, componentScores, finalScore } = result;
 
+  // Red flag detection logic
+  const detectRedFlags = (): RedFlag[] => {
+    const flags: RedFlag[] = [];
+    const avgViewers = intermediateMetrics.weightedAvgViewers;
+
+    // Critical: High viewers but extremely low engagement
+    if (avgViewers > 50 && componentScores.mpvmScore < 20) {
+      flags.push({
+        level: 'critical',
+        message: `Very low chat activity (${componentScores.mpvmScore.toFixed(1)}/100) for ${avgViewers.toFixed(0)} avg viewers. This pattern is highly suspicious and may indicate viewbotting.`
+      });
+    }
+
+    if (avgViewers > 50 && componentScores.ucp100Score < 20) {
+      flags.push({
+        level: 'critical',
+        message: `Very few unique chatters (${componentScores.ucp100Score.toFixed(1)}/100) for ${avgViewers.toFixed(0)} avg viewers. This suggests non-organic viewership.`
+      });
+    }
+
+    // Warning: Moderate viewers with poor engagement
+    if (avgViewers > 30 && componentScores.mpvmScore < 40 && componentScores.mpvmScore >= 20) {
+      flags.push({
+        level: 'warning',
+        message: `Below-average chat activity (${componentScores.mpvmScore.toFixed(1)}/100) for ${avgViewers.toFixed(0)} avg viewers. Consider encouraging more viewer interaction.`
+      });
+    }
+
+    if (avgViewers > 30 && componentScores.ucp100Score < 40 && componentScores.ucp100Score >= 20) {
+      flags.push({
+        level: 'warning',
+        message: `Below-average chatter participation (${componentScores.ucp100Score.toFixed(1)}/100) for ${avgViewers.toFixed(0)} avg viewers. Most viewers are lurking rather than engaging.`
+      });
+    }
+
+    // Warning: High activity but poor growth
+    if (componentScores.hoursScore > 70 && componentScores.f1kVHScore < 30) {
+      flags.push({
+        level: 'warning',
+        message: `High streaming activity (${componentScores.hoursScore.toFixed(1)}/100) but poor follower conversion (${componentScores.f1kVHScore.toFixed(1)}/100). Content may need improvement or better marketing.`
+      });
+    }
+
+    // Warning: Very inconsistent growth
+    if (componentScores.consistencyScore < 30) {
+      flags.push({
+        level: 'warning',
+        message: `Highly inconsistent follower growth (${componentScores.consistencyScore.toFixed(1)}/100). This could indicate sporadic viral moments or irregular content quality.`
+      });
+    }
+
+    // Warning: Good viewers but almost no growth
+    if (avgViewers > 50 && componentScores.f1kVHScore < 20) {
+      flags.push({
+        level: 'warning',
+        message: `High viewership (${avgViewers.toFixed(0)} avg) but very poor follower growth (${componentScores.f1kVHScore.toFixed(1)}/100). Viewers may not find the content compelling enough to follow.`
+      });
+    }
+
+    return flags;
+  };
+
+  const redFlags = detectRedFlags();
+  const hasRedFlags = redFlags.length > 0;
+
+  const getScoreColor = (score: number): { bg: string; text: string; icon?: string } => {
+    // Determine if this metric is flagged
+    const isCritical = score < 30;
+    const isWarning = score >= 30 && score < 50;
+    
+    if (isCritical) {
+      return { 
+        bg: 'from-red-600 to-red-500', 
+        text: 'text-red-400',
+        icon: '⚠️'
+      };
+    } else if (isWarning) {
+      return { 
+        bg: 'from-yellow-600 to-yellow-500', 
+        text: 'text-yellow-400',
+        icon: '⚡'
+      };
+    } else if (score >= 80) {
+      return { 
+        bg: 'from-green-600 to-green-400', 
+        text: 'text-green-400',
+        icon: '✓'
+      };
+    } else {
+      return { 
+        bg: 'from-violet-600 to-violet-400', 
+        text: 'text-violet-400'
+      };
+    }
+  };
+
   const ScoreBar = ({ 
     score, 
     label, 
@@ -27,39 +130,44 @@ export function ResultsDisplay({ result }: ResultsDisplayProps) {
     score: number; 
     label: string;
     tooltip: string;
-  }) => (
-    <div className="mb-4">
-      <div className="flex justify-between mb-1">
-        <Tooltip content={tooltip}>
-          <span className="text-sm font-medium text-gray-300 inline-flex items-center gap-1">
-            {label}
-            <svg 
-              className="w-4 h-4 text-violet-400" 
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24"
-            >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
-              />
-            </svg>
+  }) => {
+    const colors = getScoreColor(score);
+    
+    return (
+      <div className="mb-4">
+        <div className="flex justify-between mb-1">
+          <Tooltip content={tooltip}>
+            <span className={`text-sm font-medium ${colors.text} inline-flex items-center gap-1`}>
+              {colors.icon && <span className="text-base">{colors.icon}</span>}
+              {label}
+              <svg 
+                className="w-4 h-4 text-white" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  strokeWidth={2} 
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
+                />
+              </svg>
+            </span>
+          </Tooltip>
+          <span className={`text-sm font-medium ${colors.text}`}>
+            {score.toFixed(1)}
           </span>
-        </Tooltip>
-        <span className="text-sm font-medium text-white">
-          {score.toFixed(1)}
-        </span>
+        </div>
+        <div className="w-full bg-slate-900 rounded-full h-3">
+          <div
+            className={`bg-gradient-to-r ${colors.bg} h-3 rounded-full transition-all duration-500`}
+            style={{ width: `${Math.min(100, score)}%` }}
+          />
+        </div>
       </div>
-      <div className="w-full bg-slate-900 rounded-full h-3">
-        <div
-          className="bg-gradient-to-r from-violet-600 to-violet-400 h-3 rounded-full transition-all duration-500"
-          style={{ width: `${Math.min(100, score)}%` }}
-        />
-      </div>
-    </div>
-  );
+    );
+  };
 
   const MetricDisplay = ({
     label,
@@ -98,6 +206,34 @@ export function ResultsDisplay({ result }: ResultsDisplayProps) {
 
   return (
     <div className="space-y-6">
+      {/* Red Flags Warning Section */}
+      {hasRedFlags && (
+        <div className="space-y-3">
+          {redFlags.map((flag, index) => (
+            <div
+              key={index}
+              className={`rounded-lg p-4 border-l-4 ${
+                flag.level === 'critical'
+                  ? 'bg-red-900/20 border-red-500 text-red-200'
+                  : 'bg-yellow-900/20 border-yellow-500 text-yellow-200'
+              }`}
+            >
+              <div className="flex items-start gap-3">
+                <span className="text-2xl flex-shrink-0">
+                  {flag.level === 'critical' ? '🚨' : '⚠️'}
+                </span>
+                <div>
+                  <h4 className="font-bold mb-1">
+                    {flag.level === 'critical' ? 'Critical Issue Detected' : 'Warning'}
+                  </h4>
+                  <p className="text-sm">{flag.message}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Final Score - Hero Section */}
       <div className="bg-gradient-to-br from-violet-600 to-violet-800 rounded-lg p-8 shadow-xl text-center">
         <h2 className="text-2xl font-bold mb-2 text-white/80">

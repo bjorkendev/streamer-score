@@ -198,30 +198,58 @@ export function StreamDataTable({
                     />
                   </td>
                   <td className="py-3 px-2">
-                    <input
-                      type="number"
-                      value={editData.messages}
-                      onChange={(e) =>
-                        setEditData({
-                          ...editData,
-                          messages: parseInt(e.target.value, 10),
-                        })
-                      }
-                      className="w-full px-2 py-1 bg-slate-900 border border-violet-600/30 rounded text-white text-sm"
-                    />
+                    <div className="flex flex-col gap-1">
+                      <label className="flex items-center gap-1 text-xs">
+                        <input
+                          type="checkbox"
+                          checked={editData.includeMessages ?? true}
+                          onChange={(e) =>
+                            setEditData({ ...editData, includeMessages: e.target.checked })
+                          }
+                          className="w-3 h-3"
+                        />
+                        <span>Include</span>
+                      </label>
+                      <input
+                        type="number"
+                        value={editData.messages}
+                        onChange={(e) =>
+                          setEditData({
+                            ...editData,
+                            messages: parseInt(e.target.value, 10),
+                          })
+                        }
+                        disabled={!editData.includeMessages}
+                        className="w-full px-2 py-1 bg-slate-900 border border-violet-600/30 rounded text-white text-sm disabled:opacity-50"
+                      />
+                    </div>
                   </td>
                   <td className="py-3 px-2">
-                    <input
-                      type="number"
-                      value={editData.uniqueChatters}
-                      onChange={(e) =>
-                        setEditData({
-                          ...editData,
-                          uniqueChatters: parseInt(e.target.value, 10),
-                        })
-                      }
-                      className="w-full px-2 py-1 bg-slate-900 border border-violet-600/30 rounded text-white text-sm"
-                    />
+                    <div className="flex flex-col gap-1">
+                      <label className="flex items-center gap-1 text-xs">
+                        <input
+                          type="checkbox"
+                          checked={editData.includeUniqueChatters ?? true}
+                          onChange={(e) =>
+                            setEditData({ ...editData, includeUniqueChatters: e.target.checked })
+                          }
+                          className="w-3 h-3"
+                        />
+                        <span>Include</span>
+                      </label>
+                      <input
+                        type="number"
+                        value={editData.uniqueChatters}
+                        onChange={(e) =>
+                          setEditData({
+                            ...editData,
+                            uniqueChatters: parseInt(e.target.value, 10),
+                          })
+                        }
+                        disabled={!editData.includeUniqueChatters}
+                        className="w-full px-2 py-1 bg-slate-900 border border-violet-600/30 rounded text-white text-sm disabled:opacity-50"
+                      />
+                    </div>
                   </td>
                   <td className="py-3 px-2">
                     <input
@@ -266,21 +294,46 @@ export function StreamDataTable({
                   <td className="py-3 px-2 text-white">{stream.numberOfStreams}</td>
                   <td className="py-3 px-2 text-white">{stream.hours}</td>
                   <td className="py-3 px-2 text-white">{stream.avgViewers}</td>
-                  <td className="py-3 px-2 text-white">{stream.messages}</td>
                   <td className="py-3 px-2 text-white">
-                    {stream.uniqueChatters}
+                    {stream.includeMessages ?? true ? stream.messages : (
+                      <span className="text-gray-500 italic">N/A</span>
+                    )}
+                  </td>
+                  <td className="py-3 px-2 text-white">
+                    {stream.includeUniqueChatters ?? true ? stream.uniqueChatters : (
+                      <span className="text-gray-500 italic">N/A</span>
+                    )}
                   </td>
                   <td className="py-3 px-2 text-white">{stream.followers}</td>
                   <td className="py-3 px-2">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-violet-900/50 text-violet-300 border border-violet-500/30">
-                      {(() => {
-                        try {
-                          return calculateLegitimacyScore(stream, settings).finalScore;
-                        } catch (e) {
-                          return 'Error';
-                        }
-                      })()}
-                    </span>
+                    {(() => {
+                      try {
+                        const score = calculateLegitimacyScore(stream, settings).finalScore;
+                        const getScoreColorClass = (score: number) => {
+                          if (score < 30) {
+                            return 'bg-red-900/50 text-red-300 border-red-500/30';
+                          } else if (score < 50) {
+                            return 'bg-yellow-900/50 text-yellow-300 border-yellow-500/30';
+                          } else if (score >= 80) {
+                            return 'bg-green-900/50 text-green-300 border-green-500/30';
+                          } else {
+                            return 'bg-violet-900/50 text-violet-300 border-violet-500/30';
+                          }
+                        };
+                        
+                        return (
+                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold border ${getScoreColorClass(score)}`}>
+                            {score}
+                          </span>
+                        );
+                      } catch (e) {
+                        return (
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-gray-900/50 text-gray-400 border border-gray-500/30">
+                            Error
+                          </span>
+                        );
+                      }
+                    })()}
                   </td>
                   <td className="py-3 px-2">
                     <div className="flex gap-2">
