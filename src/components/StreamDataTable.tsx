@@ -22,10 +22,31 @@ export function StreamDataTable({
 }: StreamDataTableProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editData, setEditData] = useState<StreamData | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
-  const sortedStreams = [...streams].sort(
+  // Filter streams based on search term
+  const filteredStreams = streams.filter(stream =>
+    stream.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Sort filtered streams
+  const sortedStreams = [...filteredStreams].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
+
+  // Calculate pagination
+  const totalPages = Math.ceil(sortedStreams.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedStreams = sortedStreams.slice(startIndex, endIndex);
+
+  // Reset to first page when search changes
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    setCurrentPage(1);
+  };
 
   const handleEdit = (stream: StreamData) => {
     setEditingId(stream.id);
@@ -76,10 +97,23 @@ export function StreamDataTable({
 
   return (
     <div className="bg-slate-800 rounded-lg p-6 shadow-lg overflow-x-auto">
-      <h3 className="text-xl font-bold mb-4 text-violet-400">
-        Stream Data ({streams.length} period{streams.length !== 1 ? 's' : ''})
-      </h3>
-      <p className="text-xs text-gray-400 mb-4">Each entry represents data for a specific time period.</p>
+      <div className="flex justify-between items-center mb-4">
+        <div>
+          <h3 className="text-xl font-bold text-violet-400">
+            Stream Data ({streams.length} period{streams.length !== 1 ? 's' : ''})
+          </h3>
+          <p className="text-xs text-gray-400">Each entry represents data for a specific time period.</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <input
+            type="text"
+            placeholder="Search by name..."
+            value={searchTerm}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            className="px-3 py-2 bg-slate-900 border border-violet-600/30 rounded-md text-white text-sm focus:outline-none focus:ring-2 focus:ring-violet-600 placeholder-gray-400"
+          />
+        </div>
+      </div>
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-violet-600/30">
@@ -119,7 +153,7 @@ export function StreamDataTable({
           </tr>
         </thead>
         <tbody>
-          {sortedStreams.map((stream) => (
+          {paginatedStreams.map((stream) => (
             <tr
               key={stream.id}
               className="border-b border-violet-600/20 hover:bg-slate-900/50"
@@ -365,6 +399,47 @@ export function StreamDataTable({
           ))}
         </tbody>
       </table>
+      
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex justify-between items-center mt-6 pt-4 border-t border-violet-600/20">
+          <div className="text-sm text-gray-400">
+            Showing {startIndex + 1}-{Math.min(endIndex, sortedStreams.length)} of {sortedStreams.length} entries
+            {searchTerm && ` (filtered from ${streams.length} total)`}
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-1 bg-slate-700 hover:bg-slate-600 disabled:bg-slate-800 disabled:text-gray-500 text-white rounded text-sm transition-colors"
+            >
+              Previous
+            </button>
+            <div className="flex items-center gap-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`px-3 py-1 rounded text-sm transition-colors ${
+                    currentPage === page
+                      ? 'bg-violet-600 text-white'
+                      : 'bg-slate-700 hover:bg-slate-600 text-white'
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+              disabled={currentPage === totalPages}
+              className="px-3 py-1 bg-slate-700 hover:bg-slate-600 disabled:bg-slate-800 disabled:text-gray-500 text-white rounded text-sm transition-colors"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
