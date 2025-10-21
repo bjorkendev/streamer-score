@@ -123,8 +123,7 @@ export function StreamDataInput({ onAddStream, settings }: StreamDataInputProps)
             background: '#7f1d1d',
             color: '#fecaca',
             border: 'none',
-            minWidth: '350px',
-            maxWidth: '500px',
+            width: '400px',
             padding: '16px',
           },
         }
@@ -165,8 +164,7 @@ export function StreamDataInput({ onAddStream, settings }: StreamDataInputProps)
             background: '#7f1d1d',
             color: '#fecaca',
             border: 'none',
-            minWidth: '350px',
-            maxWidth: '500px',
+            width: '400px',
             padding: '16px',
           },
         }
@@ -207,8 +205,7 @@ export function StreamDataInput({ onAddStream, settings }: StreamDataInputProps)
             background: '#713f12',
             color: '#fef3c7',
             border: 'none',
-            minWidth: '350px',
-            maxWidth: '500px',
+            width: '400px',
             padding: '16px',
           },
         }
@@ -252,8 +249,7 @@ export function StreamDataInput({ onAddStream, settings }: StreamDataInputProps)
             background: '#713f12',
             color: '#fef3c7',
             border: 'none',
-            minWidth: '350px',
-            maxWidth: '500px',
+            width: '400px',
             padding: '16px',
           },
         }

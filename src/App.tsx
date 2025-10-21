@@ -151,8 +151,7 @@ function App() {
         toastOptions={{
           duration: 10000,
           style: {
-            minWidth: '350px',
-            maxWidth: '500px',
+            width: '400px',
             padding: '16px',
             borderRadius: '8px',
             fontSize: '14px',
