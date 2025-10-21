@@ -97,11 +97,23 @@ export function StreamDataInput({ onAddStream, settings }: StreamDataInputProps)
                 <p className="font-bold text-sm mb-1">Critical Issue Detected</p>
                 <p className="text-xs">Very low chat activity for viewer count. Potential viewbotting detected!</p>
               </div>
+              <button
+                onClick={() => toast.dismiss(t.id)}
+                className="text-red-300 hover:text-red-100 transition-colors"
+                aria-label="Close notification"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
             <div className="w-full bg-red-950 rounded-full h-1 overflow-hidden">
               <div 
-                className="h-full bg-red-400 transition-all duration-[10000ms] ease-linear"
-                style={{ width: t.visible ? '0%' : '100%' }}
+                className="h-full bg-red-400 ease-linear"
+                style={{ 
+                  width: '100%',
+                  animation: 'shrink 10s linear forwards'
+                }}
               />
             </div>
           </div>
@@ -111,7 +123,7 @@ export function StreamDataInput({ onAddStream, settings }: StreamDataInputProps)
           style: {
             background: '#7f1d1d',
             color: '#fecaca',
-            border: '2px solid #dc2626',
+            border: 'none',
             minWidth: '350px',
             maxWidth: '500px',
             padding: '16px',
@@ -128,11 +140,23 @@ export function StreamDataInput({ onAddStream, settings }: StreamDataInputProps)
                 <p className="font-bold text-sm mb-1">Critical Issue Detected</p>
                 <p className="text-xs">Very few unique chatters for viewer count. Suspicious pattern detected!</p>
               </div>
+              <button
+                onClick={() => toast.dismiss(t.id)}
+                className="text-red-300 hover:text-red-100 transition-colors"
+                aria-label="Close notification"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
             <div className="w-full bg-red-950 rounded-full h-1 overflow-hidden">
               <div 
-                className="h-full bg-red-400 transition-all duration-[10000ms] ease-linear"
-                style={{ width: t.visible ? '0%' : '100%' }}
+                className="h-full bg-red-400 ease-linear"
+                style={{ 
+                  width: '100%',
+                  animation: 'shrink 10s linear forwards'
+                }}
               />
             </div>
           </div>
@@ -142,7 +166,7 @@ export function StreamDataInput({ onAddStream, settings }: StreamDataInputProps)
           style: {
             background: '#7f1d1d',
             color: '#fecaca',
-            border: '2px solid #dc2626',
+            border: 'none',
             minWidth: '350px',
             maxWidth: '500px',
             padding: '16px',
@@ -159,11 +183,23 @@ export function StreamDataInput({ onAddStream, settings }: StreamDataInputProps)
                 <p className="font-bold text-sm mb-1">Warning</p>
                 <p className="text-xs">Below-average engagement for viewer count.</p>
               </div>
+              <button
+                onClick={() => toast.dismiss(t.id)}
+                className="text-yellow-300 hover:text-yellow-100 transition-colors"
+                aria-label="Close notification"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
             <div className="w-full bg-yellow-950 rounded-full h-1 overflow-hidden">
               <div 
-                className="h-full bg-yellow-400 transition-all duration-[10000ms] ease-linear"
-                style={{ width: t.visible ? '0%' : '100%' }}
+                className="h-full bg-yellow-400 ease-linear"
+                style={{ 
+                  width: '100%',
+                  animation: 'shrink 10s linear forwards'
+                }}
               />
             </div>
           </div>
@@ -173,7 +209,7 @@ export function StreamDataInput({ onAddStream, settings }: StreamDataInputProps)
           style: {
             background: '#713f12',
             color: '#fef3c7',
-            border: '2px solid #ca8a04',
+            border: 'none',
             minWidth: '350px',
             maxWidth: '500px',
             padding: '16px',
@@ -193,11 +229,23 @@ export function StreamDataInput({ onAddStream, settings }: StreamDataInputProps)
                 <p className="font-bold text-sm mb-1">Warning</p>
                 <p className="text-xs">High streaming hours but poor follower conversion.</p>
               </div>
+              <button
+                onClick={() => toast.dismiss(t.id)}
+                className="text-yellow-300 hover:text-yellow-100 transition-colors"
+                aria-label="Close notification"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
             <div className="w-full bg-yellow-950 rounded-full h-1 overflow-hidden">
               <div 
-                className="h-full bg-yellow-400 transition-all duration-[10000ms] ease-linear"
-                style={{ width: t.visible ? '0%' : '100%' }}
+                className="h-full bg-yellow-400 ease-linear"
+                style={{ 
+                  width: '100%',
+                  animation: 'shrink 10s linear forwards'
+                }}
               />
             </div>
           </div>
@@ -207,7 +255,7 @@ export function StreamDataInput({ onAddStream, settings }: StreamDataInputProps)
           style: {
             background: '#713f12',
             color: '#fef3c7',
-            border: '2px solid #ca8a04',
+            border: 'none',
             minWidth: '350px',
             maxWidth: '500px',
             padding: '16px',
