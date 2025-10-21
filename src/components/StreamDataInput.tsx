@@ -88,7 +88,7 @@ export function StreamDataInput({ onAddStream, settings }: StreamDataInputProps)
     
     // Show toast notifications for issues (only if metrics are included)
     if (stream.includeMessages && avgViewers > 50 && scores.mpvmScore < 20) {
-      toast.error(
+      toast(
         (t) => (
           <div className="flex flex-col gap-2">
             <div className="flex items-start justify-between gap-2">
@@ -129,7 +129,7 @@ export function StreamDataInput({ onAddStream, settings }: StreamDataInputProps)
         }
       );
     } else if (stream.includeUniqueChatters && avgViewers > 50 && scores.ucp100Score < 20) {
-      toast.error(
+      toast(
         (t) => (
           <div className="flex flex-col gap-2">
             <div className="flex items-start justify-between gap-2">
