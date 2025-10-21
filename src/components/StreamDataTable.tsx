@@ -3,6 +3,7 @@ import type { StreamData, TimePeriod, Settings } from '../types';
 import { PERIOD_LABELS, PERIOD_DAYS } from '../types';
 import { CustomSelect } from './CustomSelect';
 import { calculateLegitimacyScore } from '../utils/calculations';
+import { formatScore, formatNumber, formatNumberWithOneDecimal } from '../utils/formatting';
 
 interface StreamDataTableProps {
   streams: StreamData[];
@@ -291,20 +292,20 @@ export function StreamDataTable({
                     </div>
                   </td>
                   <td className="py-3 px-2 text-white">{stream.date}</td>
-                  <td className="py-3 px-2 text-white">{stream.numberOfStreams}</td>
-                  <td className="py-3 px-2 text-white">{stream.hours}</td>
-                  <td className="py-3 px-2 text-white">{stream.avgViewers}</td>
+                  <td className="py-3 px-2 text-white">{formatNumber(stream.numberOfStreams)}</td>
+                  <td className="py-3 px-2 text-white">{formatNumberWithOneDecimal(stream.hours)}</td>
+                  <td className="py-3 px-2 text-white">{formatNumberWithOneDecimal(stream.avgViewers)}</td>
                   <td className="py-3 px-2 text-white">
-                    {stream.includeMessages ?? true ? stream.messages : (
+                    {stream.includeMessages ?? true ? formatNumber(stream.messages) : (
                       <span className="text-gray-500 italic">N/A</span>
                     )}
                   </td>
                   <td className="py-3 px-2 text-white">
-                    {stream.includeUniqueChatters ?? true ? stream.uniqueChatters : (
+                    {stream.includeUniqueChatters ?? true ? formatNumber(stream.uniqueChatters) : (
                       <span className="text-gray-500 italic">N/A</span>
                     )}
                   </td>
-                  <td className="py-3 px-2 text-white">{stream.followers}</td>
+                  <td className="py-3 px-2 text-white">{formatNumber(stream.followers)}</td>
                   <td className="py-3 px-2">
                     {(() => {
                       try {
@@ -323,7 +324,7 @@ export function StreamDataTable({
                         
                         return (
                           <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold border ${getScoreColorClass(score)}`}>
-                            {score}
+                            {formatScore(score)}
                           </span>
                         );
                       } catch (e) {

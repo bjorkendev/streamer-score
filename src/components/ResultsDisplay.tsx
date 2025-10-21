@@ -1,5 +1,6 @@
 import type { CalculationResult, StreamData } from '../types';
 import { Tooltip } from './Tooltip';
+import { formatNumber, formatNumberWithDecimals, formatNumberWithOneDecimal, formatNumberWithFourDecimals, formatScore } from '../utils/formatting';
 
 interface ResultsDisplayProps {
   result: CalculationResult | null;
@@ -159,7 +160,7 @@ export function ResultsDisplay({ result, stream }: ResultsDisplayProps) {
             </span>
           </Tooltip>
           <span className={`text-sm font-medium ${colors.text}`}>
-            {score.toFixed(1)}
+            {formatScore(score)}
           </span>
         </div>
         <div className="w-full bg-slate-900 rounded-full h-3">
@@ -263,42 +264,42 @@ export function ResultsDisplay({ result, stream }: ResultsDisplayProps) {
           />
           <MetricDisplay
             label="Total Streams"
-            value={intermediateMetrics.totalStreams}
+            value={formatNumber(intermediateMetrics.totalStreams)}
             tooltip="Total number of individual streaming sessions across all periods"
           />
           <MetricDisplay
             label="Total Hours"
-            value={intermediateMetrics.totalHours.toFixed(1)}
+            value={formatNumberWithOneDecimal(intermediateMetrics.totalHours)}
             tooltip="Sum of all streaming hours across all sessions"
           />
           <MetricDisplay
             label="Weighted Avg Viewers"
-            value={intermediateMetrics.weightedAvgViewers.toFixed(1)}
+            value={formatNumberWithOneDecimal(intermediateMetrics.weightedAvgViewers)}
             tooltip="Average concurrent viewers, weighted by stream duration to give more weight to longer streams"
           />
           <MetricDisplay
             label="Viewer Hours"
-            value={intermediateMetrics.viewerHours.toFixed(0)}
+            value={formatNumber(intermediateMetrics.viewerHours)}
             tooltip="Total hours watched across all viewers (avg viewers × hours streamed)"
           />
           <MetricDisplay
             label="MPVM"
-            value={intermediateMetrics.mpvm.toFixed(4)}
+            value={formatNumberWithFourDecimals(intermediateMetrics.mpvm)}
             tooltip="Messages Per Viewer-Minute: total chat messages divided by total viewer-minutes"
           />
           <MetricDisplay
             label="UCP100"
-            value={intermediateMetrics.ucp100.toFixed(2)}
+            value={formatNumberWithDecimals(intermediateMetrics.ucp100)}
             tooltip="Unique Chatters Per 100 Viewers: measures what % of viewers actively chat"
           />
           <MetricDisplay
             label="F per 1kVH"
-            value={intermediateMetrics.fPer1kVH.toFixed(2)}
+            value={formatNumberWithDecimals(intermediateMetrics.fPer1kVH)}
             tooltip="Followers gained per 1000 viewer-hours: measures follower conversion efficiency"
           />
           <MetricDisplay
             label="Consistency"
-            value={intermediateMetrics.followerSpreadConsistency.toFixed(3)}
+            value={formatNumberWithDecimals(intermediateMetrics.followerSpreadConsistency)}
             tooltip="Measures how consistent follower growth is across streams (0-1, higher = more consistent)"
           />
         </div>
