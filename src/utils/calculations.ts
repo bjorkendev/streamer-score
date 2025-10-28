@@ -121,7 +121,7 @@ function calculateIntermediateMetrics(
     avgFollowers > 0 ? 1 / (1 + coefficientOfVariation) : 0;
 
   // Follower_Count: Average follower count across all streams
-  const followerCount = streams.reduce((sum, s) => sum + s.followerCount, 0) / streams.length;
+  const followerCount = streams.reduce((sum, s) => sum + (s.followerCount || 0), 0) / streams.length;
 
   return {
     totalStreams,
@@ -184,7 +184,7 @@ function calculateComponentScores(
 
   // Follower_Count_Score: 100*LOG10(1+followerCount)/LOG10(1+followerCountCap)
   const followerCountScore =
-    metrics.followerCount > 0
+    metrics.followerCount > 0 && !isNaN(metrics.followerCount)
       ? (100 * Math.log10(1 + metrics.followerCount)) /
         Math.log10(1 + settings.followerCountCap)
       : 0;
@@ -265,11 +265,11 @@ function calculateFinalScore(
   const confidenceMultiplier = Math.min(1, viewerHours / settings.minViewerHours);
 
   // Calculate layer multipliers (normalize to 0-1 range)
-  const activityMultiplier = activityScore / 100;
-  const reachMultiplier = reachScore / 100;
-  const engagementMultiplier = engagementScore / 100;
-  const growthMultiplier = growthScore / 100;
-  const authorityMultiplier = authorityScore / 100;
+  const activityMultiplier = Math.max(0.01, Math.min(1, activityScore / 100));
+  const reachMultiplier = Math.max(0.01, Math.min(1, reachScore / 100));
+  const engagementMultiplier = Math.max(0.01, Math.min(1, engagementScore / 100));
+  const growthMultiplier = Math.max(0.01, Math.min(1, growthScore / 100));
+  const authorityMultiplier = Math.max(0.01, Math.min(1, authorityScore / 100));
 
   // Interdependent calculation: All layers must perform
   // Redistribute weights based on what metrics are available
@@ -299,20 +299,20 @@ function calculateFinalScore(
   if (weights.engagement === 0) {
     // Don't include engagement in calculation
     geometricMean = Math.pow(
-      Math.pow(Math.max(0.01, activityMultiplier), weights.activity) *
-      Math.pow(Math.max(0.01, reachMultiplier), weights.reach) *
-      Math.pow(Math.max(0.01, growthMultiplier), weights.growth) *
-      Math.pow(Math.max(0.01, authorityMultiplier), weights.authority),
+      Math.pow(activityMultiplier, weights.activity) *
+      Math.pow(reachMultiplier, weights.reach) *
+      Math.pow(growthMultiplier, weights.growth) *
+      Math.pow(authorityMultiplier, weights.authority),
       1
     );
   } else {
     // Include all layers
     geometricMean = Math.pow(
-      Math.pow(Math.max(0.01, activityMultiplier), weights.activity) *
-      Math.pow(Math.max(0.01, reachMultiplier), weights.reach) *
-      Math.pow(Math.max(0.01, engagementMultiplier), weights.engagement) *
-      Math.pow(Math.max(0.01, growthMultiplier), weights.growth) *
-      Math.pow(Math.max(0.01, authorityMultiplier), weights.authority),
+      Math.pow(activityMultiplier, weights.activity) *
+      Math.pow(reachMultiplier, weights.reach) *
+      Math.pow(engagementMultiplier, weights.engagement) *
+      Math.pow(growthMultiplier, weights.growth) *
+      Math.pow(authorityMultiplier, weights.authority),
       1
     );
   }
