@@ -16,10 +16,6 @@ export function calculateLegitimacyScore(
   const periodSettings = settings.periods[stream.period];
   const periodDays = PERIOD_DAYS[stream.period];
 
-  // Debug logging
-  console.log('Calculating score for:', stream.name);
-  console.log('Stream data:', JSON.stringify(stream, null, 2));
-  console.log('Period settings:', JSON.stringify(periodSettings, null, 2));
 
   // Calculate date range
   const endDate = new Date(stream.date);
@@ -28,14 +24,12 @@ export function calculateLegitimacyScore(
 
   // Calculate intermediate metrics (using single stream as array for compatibility)
   const intermediateMetrics = calculateIntermediateMetrics([stream]);
-  console.log('Intermediate metrics:', JSON.stringify(intermediateMetrics, null, 2));
   
   // Calculate component scores
   const componentScores = calculateComponentScores(
     intermediateMetrics,
     periodSettings
   );
-  console.log('Component scores:', JSON.stringify(componentScores, null, 2));
   
   // Calculate final score with optional metrics
   const finalScore = calculateFinalScore(
@@ -45,7 +39,6 @@ export function calculateLegitimacyScore(
     stream.includeMessages ?? true,
     stream.includeUniqueChatters ?? true
   );
-  console.log('Final score:', finalScore);
 
   return {
     windowStart: startDate.toISOString().split('T')[0],
@@ -191,10 +184,11 @@ function calculateComponentScores(
   const consistencyScore = 100 * metrics.followerSpreadConsistency;
 
   // Follower_Count_Score: 100*LOG10(1+followerCount)/LOG10(1+followerCountCap)
+  const followerCountCap = settings.followerCountCap || 10000; // Fallback if missing
   const followerCountScore =
     metrics.followerCount > 0 && !isNaN(metrics.followerCount)
       ? (100 * Math.log10(1 + metrics.followerCount)) /
-        Math.log10(1 + settings.followerCountCap)
+        Math.log10(1 + followerCountCap)
       : 0;
 
   return {
@@ -216,23 +210,16 @@ function calculateFinalScore(
   includeMessages: boolean = true,
   includeUniqueChatters: boolean = true
 ): number {
-  console.log('=== calculateFinalScore Debug ===');
-  console.log('Input scores:', JSON.stringify(scores, null, 2));
-  console.log('Viewer hours:', viewerHours);
-  console.log('Include messages:', includeMessages);
-  console.log('Include unique chatters:', includeUniqueChatters);
   // Layer 1: Activity Score (Streams + Hours)
   // Combines how often they stream and how long
   const activityScore = (
     (scores.streamsScore / 100) * 0.4 +
     (scores.hoursScore / 100) * 0.6
   ) * 100;
-  console.log('Activity score:', activityScore);
 
   // Layer 2: Reach Score (Viewers)
   // Pure audience size
   const reachScore = scores.viewersScore;
-  console.log('Reach score:', reachScore);
 
   // Layer 3: Legitimacy Score (Engagement - MPVM + UCP100)
   // This validates that viewers are real and engaged

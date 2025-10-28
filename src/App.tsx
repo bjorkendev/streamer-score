@@ -55,6 +55,54 @@ function App() {
     if (needsSettingsMigration) {
       console.log('Migrating settings to period-based system...');
       setSettings(defaultSettings);
+    } else {
+      // Check if follower count settings are missing and add them
+      const needsFollowerCountMigration = Object.values(settings.periods).some(period => 
+        typeof (period as any).followerCountCap === 'undefined' ||
+        typeof (period as any).followerCountWeight === 'undefined'
+      );
+      
+      if (needsFollowerCountMigration) {
+        console.log('Adding follower count settings...');
+        const migratedSettings = {
+          ...settings,
+          periods: Object.fromEntries(
+            Object.entries(settings.periods).map(([period, config]) => [
+              period,
+              {
+                ...config,
+                followerCountCap: (config as any).followerCountCap || 10000,
+                followerCountWeight: (config as any).followerCountWeight || 0.20,
+              }
+            ])
+          )
+        } as SettingsType;
+        setSettings(migratedSettings);
+      }
+      
+      // Force migration for all periods to ensure consistency
+      const allPeriodsHaveFollowerSettings = Object.values(settings.periods).every(period => 
+        typeof (period as any).followerCountCap !== 'undefined' &&
+        typeof (period as any).followerCountWeight !== 'undefined'
+      );
+      
+      if (!allPeriodsHaveFollowerSettings) {
+        console.log('Force migrating all periods to include follower count settings...');
+        const forceMigratedSettings = {
+          ...settings,
+          periods: Object.fromEntries(
+            Object.entries(settings.periods).map(([period, config]) => [
+              period,
+              {
+                ...config,
+                followerCountCap: (config as any).followerCountCap || 10000,
+                followerCountWeight: (config as any).followerCountWeight || 0.20,
+              }
+            ])
+          )
+        } as SettingsType;
+        setSettings(forceMigratedSettings);
+      }
     }
   }, []);
 
