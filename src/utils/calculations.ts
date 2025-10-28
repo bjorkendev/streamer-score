@@ -16,6 +16,11 @@ export function calculateLegitimacyScore(
   const periodSettings = settings.periods[stream.period];
   const periodDays = PERIOD_DAYS[stream.period];
 
+  // Debug logging
+  console.log('Calculating score for:', stream.name);
+  console.log('Stream data:', stream);
+  console.log('Period settings:', periodSettings);
+
   // Calculate date range
   const endDate = new Date(stream.date);
   const startDate = new Date(endDate);
@@ -23,12 +28,14 @@ export function calculateLegitimacyScore(
 
   // Calculate intermediate metrics (using single stream as array for compatibility)
   const intermediateMetrics = calculateIntermediateMetrics([stream]);
+  console.log('Intermediate metrics:', intermediateMetrics);
   
   // Calculate component scores
   const componentScores = calculateComponentScores(
     intermediateMetrics,
     periodSettings
   );
+  console.log('Component scores:', componentScores);
   
   // Calculate final score with optional metrics
   const finalScore = calculateFinalScore(
@@ -38,6 +45,7 @@ export function calculateLegitimacyScore(
     stream.includeMessages ?? true,
     stream.includeUniqueChatters ?? true
   );
+  console.log('Final score:', finalScore);
 
   return {
     windowStart: startDate.toISOString().split('T')[0],

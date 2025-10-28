@@ -184,6 +184,20 @@ export function Settings({ settings, onSettingsChange }: SettingsProps) {
                 className="w-full px-3 py-2 bg-slate-900 border border-violet-600/30 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-violet-600"
               />
             </div>
+            <div>
+              <LabelWithTooltip
+                label="Follower Count Cap"
+                tooltip="Follower count considered excellent (100 score). Used for logarithmic scaling. Default: 10,000"
+              />
+              <input
+                type="number"
+                value={periodSettings.followerCountCap}
+                onChange={(e) =>
+                  handlePeriodSettingChange('followerCountCap', parseFloat(e.target.value))
+                }
+                className="w-full px-3 py-2 bg-slate-900 border border-violet-600/30 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-violet-600"
+              />
+            </div>
           </div>
         </div>
 
@@ -292,6 +306,21 @@ export function Settings({ settings, onSettingsChange }: SettingsProps) {
                 value={periodSettings.consistencyWeight}
                 onChange={(e) =>
                   handlePeriodSettingChange('consistencyWeight', parseFloat(e.target.value))
+                }
+                className="w-full px-3 py-2 bg-slate-900 border border-violet-600/30 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-violet-600"
+              />
+            </div>
+            <div>
+              <LabelWithTooltip
+                label="Follower Count Weight"
+                tooltip="How much follower count influences the final score. Higher = more emphasis on overall follower base. Default: 0.20 (20%)"
+              />
+              <input
+                type="number"
+                step="0.01"
+                value={periodSettings.followerCountWeight}
+                onChange={(e) =>
+                  handlePeriodSettingChange('followerCountWeight', parseFloat(e.target.value))
                 }
                 className="w-full px-3 py-2 bg-slate-900 border border-violet-600/30 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-violet-600"
               />
