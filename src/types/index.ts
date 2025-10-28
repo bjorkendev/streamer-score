@@ -5,6 +5,7 @@ export interface PeriodSettings {
   streamsCap: number;
   hoursCap: number;
   viewersCap: number;
+  followerCountCap: number;
   
   // Performance targets
   mpvmTarget: number;
@@ -20,6 +21,7 @@ export interface PeriodSettings {
   ucp100Weight: number;
   f1kVHWeight: number;
   consistencyWeight: number;
+  followerCountWeight: number;
 }
 
 export interface Settings {
@@ -33,6 +35,7 @@ export interface LegacySettings {
   streamsCap: number;
   hoursCap: number;
   viewersCap: number;
+  followerCountCap: number;
   mpvmTarget: number;
   ucp100Target: number;
   f1kVHTarget: number;
@@ -44,6 +47,7 @@ export interface LegacySettings {
   ucp100Weight: number;
   f1kVHWeight: number;
   consistencyWeight: number;
+  followerCountWeight: number;
 }
 
 export interface StreamData {
@@ -57,6 +61,7 @@ export interface StreamData {
   messages: number;
   uniqueChatters: number;
   followers: number;
+  followerCount: number; // Total follower count at the end of the period
   // Optional metric flags
   includeMessages?: boolean; // Whether to include messages/MPVM in calculation
   includeUniqueChatters?: boolean; // Whether to include unique chatters/UCP100 in calculation
@@ -71,6 +76,7 @@ export interface IntermediateMetrics {
   ucp100: number;
   fPer1kVH: number;
   followerSpreadConsistency: number;
+  followerCount: number;
 }
 
 export interface ComponentScores {
@@ -81,6 +87,7 @@ export interface ComponentScores {
   ucp100Score: number;
   f1kVHScore: number;
   consistencyScore: number;
+  followerCountScore: number;
 }
 
 export interface CalculationResult {
@@ -95,17 +102,19 @@ const createDefaultPeriodSettings = (days: number): PeriodSettings => ({
   streamsCap: days, // 1 stream per day is excellent
   hoursCap: days, // 1 hour per day is excellent
   viewersCap: 1000,
+  followerCountCap: 10000, // 10k followers is excellent
   mpvmTarget: 0.05,
   ucp100Target: 30,
   f1kVHTarget: 15,
   minViewerHours: Math.max(10, days * 0.8), // Scale with period length
-  streamsWeight: 0.10,
-  hoursWeight: 0.20,
-  viewersWeight: 0.25,
-  mpvmWeight: 0.15,
-  ucp100Weight: 0.10,
-  f1kVHWeight: 0.15,
+  streamsWeight: 0.08,
+  hoursWeight: 0.15,
+  viewersWeight: 0.20,
+  mpvmWeight: 0.12,
+  ucp100Weight: 0.08,
+  f1kVHWeight: 0.12,
   consistencyWeight: 0.05,
+  followerCountWeight: 0.20,
 });
 
 export const defaultSettings: Settings = {

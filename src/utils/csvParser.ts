@@ -19,6 +19,7 @@ export function parseCSV(csvContent: string): StreamData[] {
     'hours',
     'avgviewers',
     'followers',
+    'followercount',
   ];
   
   const missingColumns = requiredColumns.filter(
@@ -75,6 +76,9 @@ export function parseCSV(csvContent: string): StreamData[] {
     const followersIdx = headers.findIndex(
       (h) => h === 'followers'
     );
+    const followerCountIdx = headers.findIndex(
+      (h) => h === 'followercount' || h === 'follower count'
+    );
 
     try {
       const periodValue = values[periodIdx]?.toLowerCase().trim();
@@ -91,6 +95,7 @@ export function parseCSV(csvContent: string): StreamData[] {
         messages: hasMessages ? parseInt(values[messagesIdx], 10) : 0,
         uniqueChatters: hasUniqueChatters ? parseInt(values[uniqueChattersIdx], 10) : 0,
         followers: parseInt(values[followersIdx], 10),
+        followerCount: parseInt(values[followerCountIdx], 10),
         includeMessages: hasMessages,
         includeUniqueChatters: hasUniqueChatters,
       };
@@ -103,6 +108,7 @@ export function parseCSV(csvContent: string): StreamData[] {
         isNaN(stream.hours) ||
         isNaN(stream.avgViewers) ||
         isNaN(stream.followers) ||
+        isNaN(stream.followerCount) ||
         (hasMessages && isNaN(stream.messages)) ||
         (hasUniqueChatters && isNaN(stream.uniqueChatters))
       ) {
@@ -130,6 +136,7 @@ export function exportToCSV(streams: StreamData[]): string {
     'Messages',
     'UniqueChatters',
     'Followers',
+    'FollowerCount',
     'IncludeMessages',
     'IncludeUniqueChatters',
   ];
@@ -145,6 +152,7 @@ export function exportToCSV(streams: StreamData[]): string {
       stream.messages,
       stream.uniqueChatters,
       stream.followers,
+      stream.followerCount,
       stream.includeMessages ?? true,
       stream.includeUniqueChatters ?? true,
     ].join(',')

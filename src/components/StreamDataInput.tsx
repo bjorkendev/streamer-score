@@ -22,6 +22,7 @@ export function StreamDataInput({ onAddStream, settings }: StreamDataInputProps)
     messages: '',
     uniqueChatters: '',
     followers: '',
+    followerCount: '',
     includeMessages: true,
     includeUniqueChatters: true,
   });
@@ -59,6 +60,7 @@ export function StreamDataInput({ onAddStream, settings }: StreamDataInputProps)
       messages: formData.includeMessages ? parseInteger(formData.messages) : 0,
       uniqueChatters: formData.includeUniqueChatters ? parseInteger(formData.uniqueChatters) : 0,
       followers: parseInteger(formData.followers),
+      followerCount: parseInteger(formData.followerCount),
       includeMessages: formData.includeMessages,
       includeUniqueChatters: formData.includeUniqueChatters,
     };
@@ -72,6 +74,7 @@ export function StreamDataInput({ onAddStream, settings }: StreamDataInputProps)
     if (formData.includeMessages && stream.messages <= 0) errors.push('Messages must be greater than 0');
     if (formData.includeUniqueChatters && stream.uniqueChatters <= 0) errors.push('Unique chatters must be greater than 0');
     if (stream.followers < 0) errors.push('Followers cannot be negative');
+    if (stream.followerCount <= 0) errors.push('Follower count must be greater than 0');
 
     if (errors.length > 0) {
       alert('Please fix the following issues:\n' + errors.join('\n'));
@@ -267,6 +270,7 @@ export function StreamDataInput({ onAddStream, settings }: StreamDataInputProps)
       messages: '',
       uniqueChatters: '',
       followers: '',
+      followerCount: '',
       includeMessages: formData.includeMessages, // Keep the same settings
       includeUniqueChatters: formData.includeUniqueChatters,
     });
@@ -484,6 +488,28 @@ export function StreamDataInput({ onAddStream, settings }: StreamDataInputProps)
               className="w-full px-3 py-2 bg-slate-900 border border-violet-600/30 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-violet-600"
               placeholder="e.g. 250"
               min="0"
+              step="1"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              required
+            />
+          </div>
+          <div>
+            <div className="mb-2">
+              <LabelWithTooltip 
+                label="Follower Count" 
+                tooltip={`Total follower count at the end of the ${periodDays}-day period. This represents the streamer's overall follower base and influence.`}
+              />
+            </div>
+            <input
+              type="number"
+              value={formData.followerCount}
+              onChange={(e) =>
+                setFormData({ ...formData, followerCount: e.target.value })
+              }
+              className="w-full px-3 py-2 bg-slate-900 border border-violet-600/30 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-violet-600"
+              placeholder="e.g. 5000"
+              min="1"
               step="1"
               inputMode="numeric"
               pattern="[0-9]*"

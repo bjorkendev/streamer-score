@@ -52,16 +52,17 @@ function calculateIntermediateMetrics(
   streams: StreamData[]
 ): IntermediateMetrics {
   if (streams.length === 0) {
-    return {
-      totalStreams: 0,
-      totalHours: 0,
-      weightedAvgViewers: 0,
-      viewerHours: 0,
-      mpvm: 0,
-      ucp100: 0,
-      fPer1kVH: 0,
-      followerSpreadConsistency: 0,
-    };
+  return {
+    totalStreams: 0,
+    totalHours: 0,
+    weightedAvgViewers: 0,
+    viewerHours: 0,
+    mpvm: 0,
+    ucp100: 0,
+    fPer1kVH: 0,
+    followerSpreadConsistency: 0,
+    followerCount: 0,
+  };
   }
 
   // Total_Streams: Sum of all numberOfStreams
@@ -119,6 +120,9 @@ function calculateIntermediateMetrics(
   const followerSpreadConsistency =
     avgFollowers > 0 ? 1 / (1 + coefficientOfVariation) : 0;
 
+  // Follower_Count: Average follower count across all streams
+  const followerCount = streams.reduce((sum, s) => sum + s.followerCount, 0) / streams.length;
+
   return {
     totalStreams,
     totalHours,
@@ -128,6 +132,7 @@ function calculateIntermediateMetrics(
     ucp100,
     fPer1kVH,
     followerSpreadConsistency,
+    followerCount,
   };
 }
 
@@ -177,6 +182,13 @@ function calculateComponentScores(
   // Consistency_Score: 100*followerSpreadConsistency
   const consistencyScore = 100 * metrics.followerSpreadConsistency;
 
+  // Follower_Count_Score: 100*LOG10(1+followerCount)/LOG10(1+followerCountCap)
+  const followerCountScore =
+    metrics.followerCount > 0
+      ? (100 * Math.log10(1 + metrics.followerCount)) /
+        Math.log10(1 + settings.followerCountCap)
+      : 0;
+
   return {
     streamsScore,
     hoursScore,
@@ -185,6 +197,7 @@ function calculateComponentScores(
     ucp100Score,
     f1kVHScore,
     consistencyScore,
+    followerCountScore,
   };
 }
 
@@ -244,6 +257,10 @@ function calculateFinalScore(
     (scores.consistencyScore / 100) * 0.3
   ) * 100;
 
+  // Layer 5: Authority Score (Follower Count)
+  // Represents the streamer's overall follower base and influence
+  const authorityScore = scores.followerCountScore;
+
   // Sample size confidence: Penalize insufficient data
   const confidenceMultiplier = Math.min(1, viewerHours / settings.minViewerHours);
 
@@ -252,28 +269,31 @@ function calculateFinalScore(
   const reachMultiplier = reachScore / 100;
   const engagementMultiplier = engagementScore / 100;
   const growthMultiplier = growthScore / 100;
+  const authorityMultiplier = authorityScore / 100;
 
   // Interdependent calculation: All layers must perform
   // Redistribute weights based on what metrics are available
   let weights = {
-    activity: 0.30,
-    reach: 0.25,
-    engagement: 0.30,
+    activity: 0.25,
+    reach: 0.20,
+    engagement: 0.25,
     growth: 0.15,
+    authority: 0.15,
   };
 
   // If engagement metrics are not available, redistribute their weight
   if (!includeMessages && !includeUniqueChatters) {
-    // Redistribute engagement weight to activity and reach
+    // Redistribute engagement weight to activity, reach, and authority
     weights = {
-      activity: 0.40,  // +0.10
-      reach: 0.40,     // +0.15
+      activity: 0.30,  // +0.05
+      reach: 0.25,     // +0.05
       engagement: 0.0,
       growth: 0.20,    // +0.05
+      authority: 0.25, // +0.10
     };
   }
 
-  // Geometric mean with weights: (a^w1 × b^w2 × c^w3 × d^w4)
+  // Geometric mean with weights: (a^w1 × b^w2 × c^w3 × d^w4 × e^w5)
   let geometricMean: number;
   
   if (weights.engagement === 0) {
@@ -281,7 +301,8 @@ function calculateFinalScore(
     geometricMean = Math.pow(
       Math.pow(Math.max(0.01, activityMultiplier), weights.activity) *
       Math.pow(Math.max(0.01, reachMultiplier), weights.reach) *
-      Math.pow(Math.max(0.01, growthMultiplier), weights.growth),
+      Math.pow(Math.max(0.01, growthMultiplier), weights.growth) *
+      Math.pow(Math.max(0.01, authorityMultiplier), weights.authority),
       1
     );
   } else {
@@ -290,7 +311,8 @@ function calculateFinalScore(
       Math.pow(Math.max(0.01, activityMultiplier), weights.activity) *
       Math.pow(Math.max(0.01, reachMultiplier), weights.reach) *
       Math.pow(Math.max(0.01, engagementMultiplier), weights.engagement) *
-      Math.pow(Math.max(0.01, growthMultiplier), weights.growth),
+      Math.pow(Math.max(0.01, growthMultiplier), weights.growth) *
+      Math.pow(Math.max(0.01, authorityMultiplier), weights.authority),
       1
     );
   }

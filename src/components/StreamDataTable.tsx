@@ -145,6 +145,9 @@ export function StreamDataTable({
               Followers
             </th>
             <th className="text-left py-3 px-2 text-gray-300 font-semibold">
+              Follower Count
+            </th>
+            <th className="text-left py-3 px-2 text-gray-300 font-semibold">
               Score
             </th>
             <th className="text-left py-3 px-2 text-gray-300 font-semibold">
@@ -300,6 +303,19 @@ export function StreamDataTable({
                     />
                   </td>
                   <td className="py-3 px-2">
+                    <input
+                      type="number"
+                      value={editData.followerCount}
+                      onChange={(e) =>
+                        setEditData({
+                          ...editData,
+                          followerCount: parseInt(e.target.value, 10),
+                        })
+                      }
+                      className="w-full px-2 py-1 bg-slate-900 border border-violet-600/30 rounded text-white text-sm"
+                    />
+                  </td>
+                  <td className="py-3 px-2">
                     <div className="flex gap-2">
                       <button
                         onClick={handleSave}
@@ -340,6 +356,7 @@ export function StreamDataTable({
                     )}
                   </td>
                   <td className="py-3 px-2 text-white">{formatNumber(stream.followers)}</td>
+                  <td className="py-3 px-2 text-white">{formatNumber(stream.followerCount)}</td>
                   <td className="py-3 px-2">
                     {(() => {
                       try {
