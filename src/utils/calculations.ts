@@ -18,8 +18,8 @@ export function calculateLegitimacyScore(
 
   // Debug logging
   console.log('Calculating score for:', stream.name);
-  console.log('Stream data:', stream);
-  console.log('Period settings:', periodSettings);
+  console.log('Stream data:', JSON.stringify(stream, null, 2));
+  console.log('Period settings:', JSON.stringify(periodSettings, null, 2));
 
   // Calculate date range
   const endDate = new Date(stream.date);
@@ -28,14 +28,14 @@ export function calculateLegitimacyScore(
 
   // Calculate intermediate metrics (using single stream as array for compatibility)
   const intermediateMetrics = calculateIntermediateMetrics([stream]);
-  console.log('Intermediate metrics:', intermediateMetrics);
+  console.log('Intermediate metrics:', JSON.stringify(intermediateMetrics, null, 2));
   
   // Calculate component scores
   const componentScores = calculateComponentScores(
     intermediateMetrics,
     periodSettings
   );
-  console.log('Component scores:', componentScores);
+  console.log('Component scores:', JSON.stringify(componentScores, null, 2));
   
   // Calculate final score with optional metrics
   const finalScore = calculateFinalScore(
@@ -216,16 +216,23 @@ function calculateFinalScore(
   includeMessages: boolean = true,
   includeUniqueChatters: boolean = true
 ): number {
+  console.log('=== calculateFinalScore Debug ===');
+  console.log('Input scores:', JSON.stringify(scores, null, 2));
+  console.log('Viewer hours:', viewerHours);
+  console.log('Include messages:', includeMessages);
+  console.log('Include unique chatters:', includeUniqueChatters);
   // Layer 1: Activity Score (Streams + Hours)
   // Combines how often they stream and how long
   const activityScore = (
     (scores.streamsScore / 100) * 0.4 +
     (scores.hoursScore / 100) * 0.6
   ) * 100;
+  console.log('Activity score:', activityScore);
 
   // Layer 2: Reach Score (Viewers)
   // Pure audience size
   const reachScore = scores.viewersScore;
+  console.log('Reach score:', reachScore);
 
   // Layer 3: Legitimacy Score (Engagement - MPVM + UCP100)
   // This validates that viewers are real and engaged
@@ -268,9 +275,11 @@ function calculateFinalScore(
   // Layer 5: Authority Score (Follower Count)
   // Represents the streamer's overall follower base and influence
   const authorityScore = scores.followerCountScore;
+  console.log('Authority score:', authorityScore);
 
   // Sample size confidence: Penalize insufficient data
   const confidenceMultiplier = Math.min(1, viewerHours / settings.minViewerHours);
+  console.log('Confidence multiplier:', confidenceMultiplier);
 
   // Calculate layer multipliers (normalize to 0-1 range)
   const activityMultiplier = Math.max(0.01, Math.min(1, activityScore / 100));
@@ -278,6 +287,7 @@ function calculateFinalScore(
   const engagementMultiplier = Math.max(0.01, Math.min(1, engagementScore / 100));
   const growthMultiplier = Math.max(0.01, Math.min(1, growthScore / 100));
   const authorityMultiplier = Math.max(0.01, Math.min(1, authorityScore / 100));
+  console.log('Multipliers:', { activityMultiplier, reachMultiplier, engagementMultiplier, growthMultiplier, authorityMultiplier });
 
   // Interdependent calculation: All layers must perform
   // Redistribute weights based on what metrics are available
