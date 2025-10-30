@@ -145,7 +145,7 @@ function App() {
           streamsWeight: 0.20,
           hoursWeight: 0.20,
           viewersWeight: 0.10,
-          followerCountWeight: (cfg as any).followerCountWeight ?? 0.05,
+          followerCountWeight: 0.05,
           mpvmWeight: 0.10,
           ucp100Weight: 0.10,
           f1kVHWeight: 0.05,
