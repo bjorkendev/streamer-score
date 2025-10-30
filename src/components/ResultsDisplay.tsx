@@ -27,6 +27,8 @@ export function ResultsDisplay({ result, stream }: ResultsDisplayProps) {
   }
 
   const { intermediateMetrics, componentScores, finalScore } = result;
+  const includeMessages = stream?.includeMessages ?? true;
+  const includeUniqueChatters = stream?.includeUniqueChatters ?? true;
 
   // Red flag detection logic
   const detectRedFlags = (): RedFlag[] => {
@@ -324,16 +326,48 @@ export function ResultsDisplay({ result, stream }: ResultsDisplayProps) {
             label="Viewers Score"
             tooltip="Measures audience size. Based on weighted average viewers across all streams. Uses logarithmic scaling to fairly compare channels of different sizes."
           />
-          <ScoreBar 
-            score={componentScores.mpvmScore} 
-            label="MPVM Score"
-            tooltip="Messages Per Viewer-Minute. Measures chat activity relative to viewership. Higher engagement rate = more interactive community."
-          />
-          <ScoreBar 
-            score={componentScores.ucp100Score} 
-            label="UCP100 Score"
-            tooltip="Unique Chatters Per 100 Viewers. Measures what percentage of viewers actively participate in chat. Higher = more engaged community."
-          />
+          {includeMessages ? (
+            <ScoreBar 
+              score={componentScores.mpvmScore} 
+              label="MPVM Score"
+              tooltip="Messages Per Viewer-Minute. Measures chat activity relative to viewership. Higher engagement rate = more interactive community."
+            />
+          ) : (
+            <div className="mb-4">
+              <div className="flex justify-between mb-1">
+                <Tooltip content="Messages Per Viewer-Minute (not provided for this period)">
+                  <span className="text-sm font-medium text-gray-400 inline-flex items-center gap-1">
+                    MPVM Score
+                  </span>
+                </Tooltip>
+                <span className="text-sm font-medium text-gray-400">N/A</span>
+              </div>
+              <div className="w-full bg-slate-900 rounded-full h-3">
+                <div className="bg-slate-700 h-3 rounded-full" style={{ width: '0%' }} />
+              </div>
+            </div>
+          )}
+          {includeUniqueChatters ? (
+            <ScoreBar 
+              score={componentScores.ucp100Score} 
+              label="UCP100 Score"
+              tooltip="Unique Chatters Per 100 Viewers. Measures what percentage of viewers actively participate in chat. Higher = more engaged community."
+            />
+          ) : (
+            <div className="mb-4">
+              <div className="flex justify-between mb-1">
+                <Tooltip content="Unique Chatters Per 100 Viewers (not provided for this period)">
+                  <span className="text-sm font-medium text-gray-400 inline-flex items-center gap-1">
+                    UCP100 Score
+                  </span>
+                </Tooltip>
+                <span className="text-sm font-medium text-gray-400">N/A</span>
+              </div>
+              <div className="w-full bg-slate-900 rounded-full h-3">
+                <div className="bg-slate-700 h-3 rounded-full" style={{ width: '0%' }} />
+              </div>
+            </div>
+          )}
           <ScoreBar 
             score={componentScores.f1kVHScore} 
             label="F1kVH Score"
