@@ -280,6 +280,29 @@ export function Settings({ settings, onSettingsChange }: SettingsProps) {
         {/* Weights */}
         <div>
           <h3 className="text-lg font-semibold mb-3 text-white">Weights (must sum to 1.0)</h3>
+          {/* Total Indicator */}
+          <div className="mb-3 text-sm">
+            {(() => {
+              const total = (
+                (periodSettings.streamsWeight ?? 0) +
+                (periodSettings.hoursWeight ?? 0) +
+                (periodSettings.viewersWeight ?? 0) +
+                ((periodSettings as any).followerCountWeight ?? 0) +
+                (periodSettings.mpvmWeight ?? 0) +
+                (periodSettings.ucp100Weight ?? 0) +
+                (periodSettings.f1kVHWeight ?? 0) +
+                (periodSettings.consistencyWeight ?? 0)
+              );
+              const pct = Math.round(total * 100);
+              const ok = pct === 100;
+              return (
+                <span className={ok ? 'text-green-300' : 'text-yellow-300'}>
+                  Total: {pct}%
+                </span>
+              );
+            })()}
+          </div>
+          {/* Order: Streams, Hours, Viewers, FollowerCount, MPVM, UCP100, F1kVH, Consistency */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <LabelWithTooltip
@@ -323,6 +346,21 @@ export function Settings({ settings, onSettingsChange }: SettingsProps) {
                 min={0}
                 max={1}
                 onChange={(e) => handleWeightChange('viewersWeight', parseFloat(e.target.value))}
+                className="w-full px-3 py-2 bg-slate-900 border border-violet-600/30 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-violet-600"
+              />
+            </div>
+            <div>
+              <LabelWithTooltip
+                label="Follower Count Weight"
+                tooltip="How much follower count influences the final score. Higher = more emphasis on overall follower base."
+              />
+              <input
+                type="number"
+                step="0.01"
+                value={(periodSettings as any).followerCountWeight}
+                min={0}
+                max={1}
+                onChange={(e) => handleWeightChange('followerCountWeight', parseFloat(e.target.value))}
                 className="w-full px-3 py-2 bg-slate-900 border border-violet-600/30 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-violet-600"
               />
             </div>
@@ -383,21 +421,6 @@ export function Settings({ settings, onSettingsChange }: SettingsProps) {
                 min={0}
                 max={1}
                 onChange={(e) => handleWeightChange('consistencyWeight', parseFloat(e.target.value))}
-                className="w-full px-3 py-2 bg-slate-900 border border-violet-600/30 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-violet-600"
-              />
-            </div>
-            <div>
-              <LabelWithTooltip
-                label="Follower Count Weight"
-                tooltip="How much follower count influences the final score. Higher = more emphasis on overall follower base. Default: 0.20 (20%)"
-              />
-              <input
-                type="number"
-                step="0.01"
-                value={periodSettings.followerCountWeight}
-                min={0}
-                max={1}
-                onChange={(e) => handleWeightChange('followerCountWeight', parseFloat(e.target.value))}
                 className="w-full px-3 py-2 bg-slate-900 border border-violet-600/30 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-violet-600"
               />
             </div>

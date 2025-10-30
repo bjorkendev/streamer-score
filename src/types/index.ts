@@ -108,14 +108,14 @@ const createDefaultPeriodSettings = (days: number): PeriodSettings => ({
   f1kVHTarget: 15,
   minViewerHours: Math.max(10, days * 0.8), // Scale with period length
   // Default weights (must sum to 1.0), rounded to 1% increments
-  streamsWeight: 0.12,
-  hoursWeight: 0.15,
-  viewersWeight: 0.11,
-  mpvmWeight: 0.13,
-  ucp100Weight: 0.12,
-  f1kVHWeight: 0.16,
-  consistencyWeight: 0.15,
-  followerCountWeight: 0.06,
+  streamsWeight: 0.20,
+  hoursWeight: 0.20,
+  viewersWeight: 0.10,
+  followerCountWeight: 0.05,
+  mpvmWeight: 0.10,
+  ucp100Weight: 0.10,
+  f1kVHWeight: 0.05,
+  consistencyWeight: 0.20,
 });
 
 export const defaultSettings: Settings = {

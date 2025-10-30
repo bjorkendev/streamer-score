@@ -72,15 +72,15 @@ function App() {
               {
                 ...config,
                 followerCountCap: (config as any).followerCountCap || 10000,
-                followerCountWeight: (config as any).followerCountWeight ?? 0.06,
-                // Set defaults to 1%-increment baseline that sums to 1.0
-                streamsWeight: (config as any).streamsWeight ?? 0.12,
-                hoursWeight: (config as any).hoursWeight ?? 0.15,
-                viewersWeight: (config as any).viewersWeight ?? 0.11,
-                mpvmWeight: (config as any).mpvmWeight ?? 0.13,
-                ucp100Weight: (config as any).ucp100Weight ?? 0.12,
-                f1kVHWeight: (config as any).f1kVHWeight ?? 0.16,
-                consistencyWeight: (config as any).consistencyWeight ?? 0.15,
+                // New default weights (sum to 1.0)
+                streamsWeight: (config as any).streamsWeight ?? 0.20,
+                hoursWeight: (config as any).hoursWeight ?? 0.20,
+                viewersWeight: (config as any).viewersWeight ?? 0.10,
+                followerCountWeight: (config as any).followerCountWeight ?? 0.05,
+                mpvmWeight: (config as any).mpvmWeight ?? 0.10,
+                ucp100Weight: (config as any).ucp100Weight ?? 0.10,
+                f1kVHWeight: (config as any).f1kVHWeight ?? 0.05,
+                consistencyWeight: (config as any).consistencyWeight ?? 0.20,
               }
             ])
           )
@@ -104,15 +104,15 @@ function App() {
               {
                 ...config,
                 followerCountCap: (config as any).followerCountCap || 10000,
-                followerCountWeight: (config as any).followerCountWeight ?? 0.06,
-                // Default 1%-increment baseline
-                streamsWeight: (config as any).streamsWeight ?? 0.12,
-                hoursWeight: (config as any).hoursWeight ?? 0.15,
-                viewersWeight: (config as any).viewersWeight ?? 0.11,
-                mpvmWeight: (config as any).mpvmWeight ?? 0.13,
-                ucp100Weight: (config as any).ucp100Weight ?? 0.12,
-                f1kVHWeight: (config as any).f1kVHWeight ?? 0.16,
-                consistencyWeight: (config as any).consistencyWeight ?? 0.15,
+                // New default weights (sum to 1.0)
+                streamsWeight: (config as any).streamsWeight ?? 0.20,
+                hoursWeight: (config as any).hoursWeight ?? 0.20,
+                viewersWeight: (config as any).viewersWeight ?? 0.10,
+                followerCountWeight: (config as any).followerCountWeight ?? 0.05,
+                mpvmWeight: (config as any).mpvmWeight ?? 0.10,
+                ucp100Weight: (config as any).ucp100Weight ?? 0.10,
+                f1kVHWeight: (config as any).f1kVHWeight ?? 0.05,
+                consistencyWeight: (config as any).consistencyWeight ?? 0.20,
               }
             ])
           )
