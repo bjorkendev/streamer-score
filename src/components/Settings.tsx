@@ -45,78 +45,20 @@ export function Settings({ settings, onSettingsChange }: SettingsProps) {
     });
   };
 
-  // Round to nearest 1% and rebalance to keep total at exactly 1.0
+  // Round to nearest 1%; do NOT auto-rebalance. Total indicator will reflect the sum.
   const handleWeightChange = (field: keyof PeriodSettings, rawValue: number) => {
     const period = settings.periods[selectedPeriod];
     const round2 = (v: number) => Math.max(0, Math.min(1, Math.round(v * 100) / 100));
-
-    // Current weights
-    const weights: Record<string, number> = {
-      streamsWeight: period.streamsWeight ?? 0,
-      hoursWeight: period.hoursWeight ?? 0,
-      viewersWeight: period.viewersWeight ?? 0,
-      mpvmWeight: period.mpvmWeight ?? 0,
-      ucp100Weight: period.ucp100Weight ?? 0,
-      f1kVHWeight: period.f1kVHWeight ?? 0,
-      consistencyWeight: period.consistencyWeight ?? 0,
-      followerCountWeight: (period as any).followerCountWeight ?? 0,
-    };
-
-    // Apply change to target field (rounded to 1%)
     const newVal = round2(rawValue);
-    weights[field as string] = newVal;
 
-    // Compute sum and adjust followerCountWeight as counter-balance
-    const sumWithoutFollower =
-      weights.streamsWeight +
-      weights.hoursWeight +
-      weights.viewersWeight +
-      weights.mpvmWeight +
-      weights.ucp100Weight +
-      weights.f1kVHWeight +
-      weights.consistencyWeight;
-
-    let follower = round2(1 - sumWithoutFollower);
-
-    // If user edited follower itself, then compute deficit and adjust Streams as fallback bucket
-    if (field === 'followerCountWeight') {
-      follower = newVal;
-      const sumAll = sumWithoutFollower + follower;
-      if (Math.abs(sumAll - 1) > 0.0001) {
-        // Use streamsWeight as balancing bucket
-        const needed = round2(1 - (sumAll - weights.streamsWeight));
-        weights.streamsWeight = needed;
-      }
-    } else {
-      weights.followerCountWeight = follower;
-      // If follower went negative due to rounding, pull back from the edited field
-      const total = sumWithoutFollower + follower;
-      if (total > 1) {
-        const overflow = round2(total - 1);
-        const reduced = round2(newVal - overflow);
-        weights[field as string] = reduced;
-        weights.followerCountWeight = round2(1 - (
-          (sumWithoutFollower - newVal + reduced)
-        ));
-      }
-    }
-
-    // Write back
     onSettingsChange({
       ...settings,
       periods: {
         ...settings.periods,
         [selectedPeriod]: {
           ...period,
-          streamsWeight: weights.streamsWeight,
-          hoursWeight: weights.hoursWeight,
-          viewersWeight: weights.viewersWeight,
-          mpvmWeight: weights.mpvmWeight,
-          ucp100Weight: weights.ucp100Weight,
-          f1kVHWeight: weights.f1kVHWeight,
-          consistencyWeight: weights.consistencyWeight,
-          followerCountWeight: weights.followerCountWeight,
-        } as PeriodSettings,
+          [field]: newVal as any,
+        },
       },
     });
   };
