@@ -130,6 +130,34 @@ function App() {
     }
   }, [streams]);
 
+  // One-time weights migration: apply new defaults to ALL periods
+  useEffect(() => {
+    const FLAG_KEY = 'sls_weights_defaults_v2_applied';
+    if (localStorage.getItem(FLAG_KEY) === 'true') return;
+
+    const periods = settings.periods;
+    const updated = Object.fromEntries(
+      Object.entries(periods).map(([period, cfg]) => [
+        period,
+        {
+          ...cfg,
+          // Apply the new default weights for every period
+          streamsWeight: 0.20,
+          hoursWeight: 0.20,
+          viewersWeight: 0.10,
+          followerCountWeight: (cfg as any).followerCountWeight ?? 0.05,
+          mpvmWeight: 0.10,
+          ucp100Weight: 0.10,
+          f1kVHWeight: 0.05,
+          consistencyWeight: 0.20,
+        } as any,
+      ])
+    );
+
+    setSettings({ ...settings, periods: updated } as SettingsType);
+    localStorage.setItem(FLAG_KEY, 'true');
+  }, []);
+
   // (Removed) Auto-normalization on every change; weights will be managed in Settings UI
 
   // Calculate score for selected stream when it changes
