@@ -164,6 +164,55 @@ function App() {
     }
   }, [streams]);
 
+  // Ensure weights always sum to 1.0 across all periods (auto-normalize on change)
+  useEffect(() => {
+    // Build a normalized copy if any period deviates from 1.0
+    const entries = Object.entries(settings.periods);
+    let changed = false;
+    const normalizedPeriods = Object.fromEntries(
+      entries.map(([period, cfg]) => {
+        const followerCountWeight = (cfg as any).followerCountWeight ?? 0;
+        const weightsSum =
+          (cfg.streamsWeight ?? 0) +
+          (cfg.hoursWeight ?? 0) +
+          (cfg.viewersWeight ?? 0) +
+          (cfg.mpvmWeight ?? 0) +
+          (cfg.ucp100Weight ?? 0) +
+          (cfg.f1kVHWeight ?? 0) +
+          (cfg.consistencyWeight ?? 0) +
+          followerCountWeight;
+
+        if (!weightsSum || Math.abs(weightsSum - 1) < 0.0001) {
+          return [period, cfg];
+        }
+
+        changed = true;
+        const factor = 1 / weightsSum;
+        return [
+          period,
+          {
+            ...cfg,
+            streamsWeight: (cfg.streamsWeight ?? 0) * factor,
+            hoursWeight: (cfg.hoursWeight ?? 0) * factor,
+            viewersWeight: (cfg.viewersWeight ?? 0) * factor,
+            mpvmWeight: (cfg.mpvmWeight ?? 0) * factor,
+            ucp100Weight: (cfg.ucp100Weight ?? 0) * factor,
+            f1kVHWeight: (cfg.f1kVHWeight ?? 0) * factor,
+            consistencyWeight: (cfg.consistencyWeight ?? 0) * factor,
+            followerCountWeight: followerCountWeight * factor,
+          },
+        ];
+      })
+    );
+
+    if (changed) {
+      const normalizedSettings = { ...settings, periods: normalizedPeriods } as SettingsType;
+      setSettings(normalizedSettings);
+    }
+    // We intentionally include only settings in deps to react to user edits
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [settings]);
+
   // Calculate score for selected stream when it changes
   useEffect(() => {
     if (selectedStream) {
