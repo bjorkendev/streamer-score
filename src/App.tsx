@@ -72,37 +72,20 @@ function App() {
               {
                 ...config,
                 followerCountCap: (config as any).followerCountCap || 10000,
-                followerCountWeight: (config as any).followerCountWeight || 0.20,
+                followerCountWeight: (config as any).followerCountWeight ?? 0.06,
+                // Set defaults to 1%-increment baseline that sums to 1.0
+                streamsWeight: (config as any).streamsWeight ?? 0.12,
+                hoursWeight: (config as any).hoursWeight ?? 0.15,
+                viewersWeight: (config as any).viewersWeight ?? 0.11,
+                mpvmWeight: (config as any).mpvmWeight ?? 0.13,
+                ucp100Weight: (config as any).ucp100Weight ?? 0.12,
+                f1kVHWeight: (config as any).f1kVHWeight ?? 0.16,
+                consistencyWeight: (config as any).consistencyWeight ?? 0.15,
               }
             ])
           )
         } as SettingsType;
-        // Normalize weights to sum to 1.0 while preserving proportions
-        const normalized = {
-          ...migratedSettings,
-          periods: Object.fromEntries(
-            Object.entries(migratedSettings.periods).map(([period, cfg]) => {
-              const total = (cfg.streamsWeight ?? 0) + (cfg.hoursWeight ?? 0) + (cfg.viewersWeight ?? 0) +
-                (cfg.mpvmWeight ?? 0) + (cfg.ucp100Weight ?? 0) + (cfg.f1kVHWeight ?? 0) + (cfg.consistencyWeight ?? 0) +
-                (cfg as any).followerCountWeight;
-              if (total && Math.abs(total - 1) > 0.0001) {
-                return [period, {
-                  ...cfg,
-                  streamsWeight: (cfg.streamsWeight ?? 0) / total,
-                  hoursWeight: (cfg.hoursWeight ?? 0) / total,
-                  viewersWeight: (cfg.viewersWeight ?? 0) / total,
-                  mpvmWeight: (cfg.mpvmWeight ?? 0) / total,
-                  ucp100Weight: (cfg.ucp100Weight ?? 0) / total,
-                  f1kVHWeight: (cfg.f1kVHWeight ?? 0) / total,
-                  consistencyWeight: (cfg.consistencyWeight ?? 0) / total,
-                  followerCountWeight: (cfg as any).followerCountWeight / total,
-                }];
-              }
-              return [period, cfg];
-            })
-          )
-        } as SettingsType;
-        setSettings(normalized);
+        setSettings(migratedSettings);
       }
       
       // Force migration for all periods to ensure consistency
@@ -121,37 +104,20 @@ function App() {
               {
                 ...config,
                 followerCountCap: (config as any).followerCountCap || 10000,
-                followerCountWeight: (config as any).followerCountWeight || 0.20,
+                followerCountWeight: (config as any).followerCountWeight ?? 0.06,
+                // Default 1%-increment baseline
+                streamsWeight: (config as any).streamsWeight ?? 0.12,
+                hoursWeight: (config as any).hoursWeight ?? 0.15,
+                viewersWeight: (config as any).viewersWeight ?? 0.11,
+                mpvmWeight: (config as any).mpvmWeight ?? 0.13,
+                ucp100Weight: (config as any).ucp100Weight ?? 0.12,
+                f1kVHWeight: (config as any).f1kVHWeight ?? 0.16,
+                consistencyWeight: (config as any).consistencyWeight ?? 0.15,
               }
             ])
           )
         } as SettingsType;
-        // Normalize weights to sum to 1.0 while preserving proportions
-        const normalizedForce = {
-          ...forceMigratedSettings,
-          periods: Object.fromEntries(
-            Object.entries(forceMigratedSettings.periods).map(([period, cfg]) => {
-              const total = (cfg.streamsWeight ?? 0) + (cfg.hoursWeight ?? 0) + (cfg.viewersWeight ?? 0) +
-                (cfg.mpvmWeight ?? 0) + (cfg.ucp100Weight ?? 0) + (cfg.f1kVHWeight ?? 0) + (cfg.consistencyWeight ?? 0) +
-                (cfg as any).followerCountWeight;
-              if (total && Math.abs(total - 1) > 0.0001) {
-                return [period, {
-                  ...cfg,
-                  streamsWeight: (cfg.streamsWeight ?? 0) / total,
-                  hoursWeight: (cfg.hoursWeight ?? 0) / total,
-                  viewersWeight: (cfg.viewersWeight ?? 0) / total,
-                  mpvmWeight: (cfg.mpvmWeight ?? 0) / total,
-                  ucp100Weight: (cfg.ucp100Weight ?? 0) / total,
-                  f1kVHWeight: (cfg.f1kVHWeight ?? 0) / total,
-                  consistencyWeight: (cfg.consistencyWeight ?? 0) / total,
-                  followerCountWeight: (cfg as any).followerCountWeight / total,
-                }];
-              }
-              return [period, cfg];
-            })
-          )
-        } as SettingsType;
-        setSettings(normalizedForce);
+        setSettings(forceMigratedSettings);
       }
     }
   }, []);
@@ -164,54 +130,7 @@ function App() {
     }
   }, [streams]);
 
-  // Ensure weights always sum to 1.0 across all periods (auto-normalize on change)
-  useEffect(() => {
-    // Build a normalized copy if any period deviates from 1.0
-    const entries = Object.entries(settings.periods);
-    let changed = false;
-    const normalizedPeriods = Object.fromEntries(
-      entries.map(([period, cfg]) => {
-        const followerCountWeight = (cfg as any).followerCountWeight ?? 0;
-        const weightsSum =
-          (cfg.streamsWeight ?? 0) +
-          (cfg.hoursWeight ?? 0) +
-          (cfg.viewersWeight ?? 0) +
-          (cfg.mpvmWeight ?? 0) +
-          (cfg.ucp100Weight ?? 0) +
-          (cfg.f1kVHWeight ?? 0) +
-          (cfg.consistencyWeight ?? 0) +
-          followerCountWeight;
-
-        if (!weightsSum || Math.abs(weightsSum - 1) < 0.0001) {
-          return [period, cfg];
-        }
-
-        changed = true;
-        const factor = 1 / weightsSum;
-        return [
-          period,
-          {
-            ...cfg,
-            streamsWeight: (cfg.streamsWeight ?? 0) * factor,
-            hoursWeight: (cfg.hoursWeight ?? 0) * factor,
-            viewersWeight: (cfg.viewersWeight ?? 0) * factor,
-            mpvmWeight: (cfg.mpvmWeight ?? 0) * factor,
-            ucp100Weight: (cfg.ucp100Weight ?? 0) * factor,
-            f1kVHWeight: (cfg.f1kVHWeight ?? 0) * factor,
-            consistencyWeight: (cfg.consistencyWeight ?? 0) * factor,
-            followerCountWeight: followerCountWeight * factor,
-          },
-        ];
-      })
-    );
-
-    if (changed) {
-      const normalizedSettings = { ...settings, periods: normalizedPeriods } as SettingsType;
-      setSettings(normalizedSettings);
-    }
-    // We intentionally include only settings in deps to react to user edits
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [settings]);
+  // (Removed) Auto-normalization on every change; weights will be managed in Settings UI
 
   // Calculate score for selected stream when it changes
   useEffect(() => {
